@@ -1,0 +1,97 @@
+\documentclass[aspectratio=169]{beamer}
+\beamertemplatenavigationsymbolsempty
+%\includeonlyframes{current}
+\usefonttheme{professionalfonts}
+%\usepackage{newtxtext,newtxmath}
+\usepackage{animate}
+\usepackage{graphicx}
+\usepackage[labelformat=empty]{caption}
+\usepackage{beamerthemesplit}
+\usepackage{textpos}
+\usepackage[percent]{overpic}
+\usepackage{multirow}
+\usepackage{array}
+\usepackage{hhline}
+\usepackage{siunitx}
+\usepackage{comment}
+\usepackage{tikz}
+\usepackage{transparent}
+\usepackage{soul}
+%\usepackage{enumitem}
+%\usepackage{transparent}
+%\usepackage[orientation=landscape,size=custom,width=16,height=9,scale=0.5,debug]{beamerposter} 
+
+\newcommand{\conv}{\scalebox{0.6}{$\perp$}}
+\newcommand{\como}{\scalebox{0.6}{$+$}}
+\newcommand{\Var}{\mathrm{Var}}
+
+
+\title{Bayesian distribution fitting}
+\author{Charlie Wusuo Liu}
+%\date{May 29, 2019}
+
+
+\expandafter\def\expandafter\insertshorttitle\expandafter{%
+	\insertshorttitle\hfill%
+	\insertframenumber\,/\,\inserttotalframenumber}
+
+%\setbeamercovered{%
+	%	still covered={\opaqueness<1->{10}},  
+	%	again covered={\opaqueness<1->{10}}}
+
+
+\begin{document}
+
+% ---- first slide is here. Do not delete or change this line (set for making R package)
+
+\begin{frame}{Progress}
+
+\begin{enumerate}
+\tiny\item  Halfway done in refurbishing the document on nonstationary covariance model.\medskip
+
+\begin{itemize}
+\tiny\item  Easy introduction to clients. Analogy to low dimensional embedding.\medskip
+
+\tiny\item \tiny Justify why we chose cluster centers as kernel centers.\medskip
+\end{itemize}
+
+\tiny\item Refined the C++ codebase of \texttt{NGFMfitDistr}, \texttt{keyALGs}, \texttt{keyALGsExt}.\medskip
+
+\begin{itemize}
+\tiny\item Studied a lot about C++20. Familiarized with template meta programming for pushing compile time computation.\medskip
+
+\tiny\item Implemented a memory pool that can recycle \texttt{std::vector} containers of any type in the most parsimonious manner. It will substantially reduce the memory footprint in all my current and future C++ applications, and change the way I approach problems --- from a more object-oriented mindset to a more functional one.\medskip
+
+\begin{itemize}
+\tiny\item This problem has been lingering in my head for 8 years.\medskip
+
+\tiny\item Attempted to solve it more than a year ago but to little avail.\medskip
+
+\tiny\item The practice will probably be frowned upon by C++ community as it does not entirely conform C++ standard. However, with sufficient pretests in the pool constructor, the computing platform will conclude if the software can be supported in compile time.\medskip
+\end{itemize}
+ 
+\end{itemize}
+
+\tiny\item Briefly communicated Syed about LASSO. Next week they might need me to review the methodology or to run their Mexico model.
+
+\end{enumerate}
+
+\end{frame}
+
+\end{document}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

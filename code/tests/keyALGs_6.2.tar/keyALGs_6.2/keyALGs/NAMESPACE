@@ -1,0 +1,8 @@
+exportPattern("^[[:alpha:]]+")
+importFrom(Rcpp, evalCpp)
+useDynLib(keyALGs)
+import(RcppParallel)
+import(RcppArmadillo)
+import(data.table)
+importFrom("graphics", "hist", "par")
+importFrom("utils", "unzip", "zip")

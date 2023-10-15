@@ -1,0 +1,329 @@
+\documentclass[12pt,letterpaper]{article}
+\usepackage{fullpage}
+\usepackage[top=2cm,bottom=2.5cm,left=2.5cm,right=2.5cm,paperheight=220cm]{geometry}
+\usepackage{amsmath,amsthm,amsfonts,amssymb,amscd}
+\usepackage{lastpage}
+\usepackage{enumerate}
+\usepackage{fancyhdr}
+\usepackage{mathrsfs}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{hyperref}
+\usepackage{bbm}
+\usepackage{minted}
+\usepackage{float}
+\usepackage{mdframed}
+\usepackage{algorithm}
+\usepackage{algcompatible}
+\usepackage{algorithmicx}
+
+
+\hypersetup{%
+	colorlinks=true,
+	linkcolor=blue,
+	linkbordercolor={0 0 1}
+}
+
+%\renewcommand\lstlistingname{Algorithm}
+%\renewcommand\lstlistlistingname{Algorithms}
+%\def\lstlistingautorefname{Alg.}
+
+
+\usemintedstyle{default}
+
+%\setlength{\parindent}{0.0in}
+%\setlength{\parskip}{0.05in}
+
+% Edit these as appropriate
+%\newcommand\hwnumber{ }                  % <-- homework number
+%\newcommand\NetIDa{Wusuo Liu}           % <-- NetID of person #1
+
+%\pagestyle{fancyplain}
+\pagestyle{plain}
+\headheight 35pt
+%\lhead{\NetIDa}
+%%\lhead{\NetIDa\\\NetIDb}                 % <-- Comment this line out for problem sets (make sure you are person #1)
+%\chead{\textbf{\Large Course Project \hwnumber}}
+%\rhead{\course \\ \today}
+%\lfoot{}
+%\cfoot{}
+%\rfoot{\small\thepage}
+%\headsep 1.5em
+\definecolor{bg}{rgb}{0.95,0.95,0.95}
+%\usepackage{minted}
+
+\title{  \texttt{NGFMfitDistr} Workflow  }
+
+\author{Charlie Wusuo Liu}
+
+\linespread{1.25}
+
+\setlength{\parindent}{2em}
+
+\begin{document}
+%\parindent
+
+\date{September 5, 2023}
+
+\maketitle
+
+\begin{abstract}
+This document contains code examples of producing NGFM-compliant PMF table using R package \texttt{NGFMfitDistr}.
+\end{abstract}
+
+\tableofcontents
+
+\section{Introduction}
+
+A new methodology for generating NGFM-compliant distributions is implemented in R package \texttt{NGFMfitDistr}. The software facilitates an end-to-end computing pipeline from claims data to PMF table. It also manages deductibles and incorporates Bayesian updates. Main steps of the pipeline are:
+
+\begin{enumerate}
+\item  Import data: MDRs (Modeled Damage Ratio), damage ratios.
+\item  Model $P_0$.
+\item  Compute e.g. 18999 ``empirical" PMFs without $P_0$.
+\item  Fit Transformed Beta (TrB) to the 18999 PMFs.
+\item  Discretization.
+\end{enumerate}
+
+For coverages A, B, C, the NGFM-compliant distribution table contains PMFs associated to 19001 \texttt{targetMDRs} $=\{0,0.00001,0.00002,\ldots,0.09999,0.1,0.1001,0.1002,\ldots,0.9999,1\}$. Distributions associated to MDR=0 and MDR=1 are assumed degenerate, thus ignored during fitting.
+
+The MDR unit in coverage D is day: \texttt{targetMDRs}$=\{0,$ $0.00001,$ $0.00002,$ $\ldots,0.09999,$ $0.1,$ $0.1001,$ $0.1002,$ $\ldots,$ $0.9999,$ $1,$ $1.001,$ $1.002,$ $\ldots,$ $9.999,$ $10,$ $10.01,$ $10.02,$ $\ldots,$ $99.99,$ $100,$ $100.1,$ $100.2,$ $\ldots,999.9,$ $1000,$ $1001,$ $\ldots,$ $1096\}$.
+
+\subsection{Import data}
+Claims data are given as a two-column matrix where each row is an MDR and a DR (damage ratio). We order rows of the matrix by MDR, and remove rows where MDR is 0 or 1.
+
+\subsection{Model $P_0$}
+
+Users will define a sliding window size and a sliding speed over the data. For instance, the sliding window size can be $1\%$ of the number of claims, and the sliding speed can be $1\%$ of the window size. This will yield about 10,000 overlapped windows of data. In each window, we average MDRs as mMDR, and compute the proportion of zero DRs, namely $P_0$. 
+%and associate it to the DRs.
+
+%the ``empirical" distribution of DRs in this window. Here, the ``empirical" distribution is characterized by the PMF of DRs. Computing the PMF is similar to making a histogram except that we use regriding instead of bucketing and frequency normalization [REF].
+
+%The quotes on ``empirical" suggest the distribution of DR is not entirely empirical, because the PMF is a condensed characterization of the data. Typically we set 64 as the PMF's support size (number of points).
+
+The pairs of (mMDR, $P_0$) in all windows are gathered.
+%Here, $P_0$ is the proportion of zero DRs in an window. 
+Our goal is to estimate $\hat{P}_0$ for every element in \texttt{targetMDRs}. Additionally, NGFM standard dictates that $\hat{P}_0$ should be nonincreasing with increasing \texttt{targetMDRs}. To this end, we (i) find the longest nonincreasing subsequence of $P_0$s along with increasing mMDRs, (ii) interpolate pairs of (mMDR, $P_0$) in the subsequence to obtain a nonincreasing function, (iii) supply \texttt{targetMDRs} to the function for $\hat{P}_0$s. Please run \texttt{vignette("slides", package = "NGFMfitDistr")} to see more details in the slide vignette.
+
+\subsection{Compute ``empirical" PMFs without $P_0$}
+
+Let $\hat{P}_0(\texttt{targetMDR})$ denote the modeled $P_0$ for a \texttt{targetMDR}. The target mean for the main part of the distribution is
+\begin{equation*}
+\texttt{targetMDR}_{\text{main}} = \frac{\texttt{targetMDR}}{  1 -  \hat{P}_0(\texttt{targetMDR}) }.
+\end{equation*}
+We delete all rows where DR=0 from the claims data, and reapply the 1\% window size and 0.01\% sliding speed to obtain about 10,000 windows of data. In each window, we compute the mean MDR and the ``empirical" distribution of DRs. Let (mMDR, PMF) denote the result. Computing the PMF is similar to making a histogram except that we use regriding instead of binning and frequency normalization. Please check \texttt{keyALGs} in \url{//air-worldwide.com/data/financialmodule/Rpackages} for details about regriding.
+
+The quotes on ``empirical" suggest the distribution is not entirely empirical, because PMF is a lossy characterization of the data. Typically we set 64 as the PMF's support size (number of points).
+
+There are 18,999 $\texttt{targetMDR}_{\text{main}}$s. Our goal is to associate each of them with an ``empirical" PMF, and then to fit the PMF with a TrB model. The approach is as follows. In the sequence of mMDRs, we search the adjacent pair that $\texttt{targetMDR}_{\text{main}}$ falls between. The ``empirical" PMF for $\texttt{targetMDR}_{\text{main}}$ is then made as a mixture of the two PMFs associated with the mMDRs. The mixture weight is determined by the relative position of $\texttt{targetMDR}_{\text{main}}$ in $[$mMDR$_{\text{low}}$, mMDR$_{\text{high}}]$. Please see \texttt{vignette("slides", package = "NGFMfitDistr")} for more details.
+
+\subsection{Fit TrB to 18999 ``empirical" PMFs}\label{secfit}
+We first fit the PMF associated to the median MDR in the original data, e.g. 0.05. Using the optimized TrB parameters as initialization, we next fit the PMF associated to 0.0501. The optimized parameters for 0.0501 are then used to initialize the fitting for 0.0502. 
+
+After the PMF for 0.9999 is fitted, we reverse direction. We use the optimized parameters for 0.05 to initialize the fitting of PMF for 0.0499, and then 0.0498, and so on, down to 0.00001.
+
+The fitting method is referred to as \textit{bidirectional sequential fitting}. The motivation is to promote smooth parameter transition between close $\texttt{targetMDR}_{\text{main}}$s. The package also implements naive fitting procedures that do not exploit the sequential locality. The naive approaches usually run much slower and tend to produce erratic parameter behaviors along the $\texttt{targetMDR}_{\text{main}}$ axis. 
+
+TrB has four parameters $a, b, c, d$. Because the TrB's mean needs to equal $\texttt{targetMDR}_{\text{main}}$, we can solve the scale parameter $d$ on the fly given $\texttt{targetMDR}_{\text{main}}$ and the values of $a,b,c$ at the time. This effectively reduce the problem's dimensionality to three for the L-BFGS-B optimizer. We choose L-BFGS-B for its efficiency and robustness. It is widely recognized as the go-to quasi-Newton method for continuous optimization under box constraints.
+
+For more details, please see \texttt{vignette("slides", package = "NGFMfitDistr")}.
+
+\subsection{Discretization}
+An \textit{inflated TrB distribution} comprises $\hat{P}_0$ and the TrB model for the main part. We have 18,999 such distributions to be discretized on 42/64-point supports. The final PMF table should also satisfy the following monotonicity constraints:
+\begin{itemize}
+\item Respectively, $\hat{P}_0$s, $\max$es, $\hat{P}_{\max}$s, the coefficients of variation are nonincreasing, nondecreasing, nondecreasing, nonincreasing with increasing \texttt{targetMDR}s.
+\end{itemize}
+Here, $\max$ is the high endpoint on PMF's support and $\hat{P}_{\max}$ is the probability associated with it. Coefficient of variation is the PMF's standard deviation divided by its mean.
+
+In general, we first set the $\max$ equal to some high percentile (e.g. the 99th) of the distribution. Then we discretize TrB onto a fine regular grid of e.g. 2,000 points. Finer grid incurs less error between the PMF's mean and the TrB's mean. The fine PMF is then regrided onto a 42/64-point support. The regriding algorithm preserves the mean exactly.
+
+After the regriding, the monotonicity requirements are hardly fully satisfied on a micro scale. We massage the probabilities in the PMF table to meet the requirements. The massaging is based on interpolation of the longest monotonic subsequence. Please see \texttt{vignette("slides", package = "NGFMfitDistr")} for more details.
+
+
+
+\section{Code example I}
+
+Load New Zealand coverage A data included in \texttt{NGFMfitDistr}. Rename it for simplicity. Check the data's structure:
+%\begin{minted}[obeytabs=true,tabsize=2,bgcolor=bg,fontsize=\footnotesize,linenos]{R}
+\begin{minted}[obeytabs=true,tabsize=2,bgcolor=bg,fontsize=\footnotesize]{R}
+data("NewZealandCvgA", package = 'NGFMfitDistr')
+dat = NewZealandCvgA
+str(dat)
+# 'data.frame':	178398 obs. of  2 variables:
+# $ MDR: num  1e-04 1e-04 1e-04 1e-04 1e-04 1e-04 1e-04 1e-04 1e-04 1e-04 ...
+# $ CDR: num  0 0 0 0 0 0 0 0 0 0 ...
+\end{minted}
+Feed \texttt{targetMDR}s and the data to \texttt{NGFMfitDistr::fullFit()}:
+%\begin{minted}[obeytabs=true,tabsize=2,bgcolor=bg,fontsize=\footnotesize,linenos]{R}
+\begin{minted}[obeytabs=true,tabsize=2,bgcolor=bg,fontsize=\footnotesize]{R}
+targetMDRs = c(1:10000, seq(1e4L + 10L, 1e5L - 10L, by = 10L)) / 1e5
+
+optRst = NGFMfitDistr::fullFit(
+	mdr = dat$MDR,
+	cdr = dat$CDR,
+	windowSize = as.integer(round(nrow(dat) * 0.01)),
+	slidingSpeed = as.integer(round(nrow(dat) * 1e-4)),
+	sampleSize = round(nrow(dat) * (1 - 1 / exp(1))),
+	NsampleSets = 100L,
+	interpolationMethod = "linear",
+	linearIntpoThenCpp = TRUE,
+	targetMDRs = targetMDRs,
+	randomSeed = 42L,
+	maxCore = parallel::detectCores(),
+	deductible = NULL,
+	isDedFranchise = TRUE,
+	givenP0 = NULL,
+	nonDegenerateOldDistrs = NULL,
+	sampleWeightOnOldDistrs = 0.8,
+	empDistrSupportSize = 64L,
+	regridMethod = "lr",
+	tempDir = "../tempFiles/CharlieMP/C",
+	figureDir = "../tmpfigure",
+	fitToBiasCorrectedPMFs = FALSE,
+	abc = matrix(c(4, 5, 6)),
+	abcLB = c(1.01, 0.1, 0.1),
+	abcUB = c(30, 30, 30),
+	startingPmf = 0L,
+	scaleEps = 1e-8,
+	scaleMaxit = 100L,
+	distanceFun = "likelihood",
+	max_iterations = 100L,
+	RIBlib = "Numerical Recipes",
+	sequentialUpdate = -1,
+	hgrad = 0,
+	centralDiff = TRUE,
+	verbose = TRUE,
+	m = 6,
+	epsilon = 1e-5,
+	epsilon_rel = 1e-5,
+	past = 1,
+	delta = 1e-10,
+	max_submin = 10,
+	max_linesearch = 20,
+	min_step = 1e-20,
+	max_step = 1e+20,
+	ftol = 1e-4,
+	wolfe = 0.9
+)
+\end{minted}
+Most of the function arguments have default values that usually need no changes. Please refer to the package manual for more details on the function.
+
+In the sibling directory \texttt{figureDir = "../tmpfigure"}, we can find \texttt{p0models.png} and \texttt{TrBtransitionParam.png}:
+\begin{figure}[h!] 
+\includegraphics[width=\textwidth]{../../tmpfigure/p0models.png}
+\caption{\texttt{p0models.png} in \texttt{../tmpfigure}. It shows the ensemble model for $P_0$ and mean of the ensemble.} 
+\end{figure}
+
+\begin{figure}[h!] 
+\includegraphics[width=\textwidth]{../../tmpfigure/TrBtransitionParam.png}
+\caption{\texttt{TrBtransitionParam.png} in \texttt{../tmpfigure}. It shows the fitted TrB parameters $a,b,c,d$ and the objective function value.}\label{trbparplot} 
+\end{figure}
+
+Figure \ref{trbparplot} shows a cliff in $a$ and a spike in $c$ around the starting MDR (see Section \ref{secfit}). The behavior is due to: (i) the initialization guided the optimizer into some local optimum, (ii) when the cumulative change in the ``empirical" PMF becomes large enough, the optimizer will slide into another local optimum that is far away from the original. Note that this does not imply nonnegligible changes in probability densities or the objective function value. Although unnecessary, we can trial-and-error a different initialization to smooth the transition.
+
+In Figure \ref{trbparplot}, the value of $a$ around the cliff is about 4. The corresponding value of $b$ is about 1. The value of $c$ around the spike is about 1.5. Therefore we may try 4, 1, 1.5 as the initialization for $a,b,c$:
+\begin{minted}[obeytabs=true,tabsize=2,bgcolor=bg,fontsize=\footnotesize]{R}
+optRst = NGFMfitDistr::fullFit(
+	mdr = dat$MDR,
+	cdr = dat$CDR,
+	windowSize = as.integer(round(nrow(dat) * 0.01)),
+	slidingSpeed = as.integer(round(nrow(dat) * 1e-4)),
+	sampleSize = round(nrow(dat) * (1 - 1 / exp(1))),
+	abc = matrix(c(4, 1, 1.5)),
+	figureDir = "../tmpfigure2"
+)
+\end{minted}
+Figure \ref{trbparplot2} shows the new TrB parameter transition. The objective function value has no visible change.
+\begin{figure}[h!] 
+\includegraphics[width=\textwidth]{../../tmpfigure2/TrBtransitionParam.png}
+\caption{\texttt{TrBtransitionParam.png} in \texttt{../tmpfigure2}. Initial $a,b,c=4,1,1.5$.}\label{trbparplot2} 
+\end{figure}
+
+Before discretization, we set $\max$es of the PMFs' supports as the 99th percentiles of the TrBs. The 99th percentile is not the only choice for making $\max$es.
+\begin{minted}[obeytabs=true,tabsize=2,bgcolor=bg,fontsize=\footnotesize]{R}
+# Assemble the matrix of a, b, c, d:
+param = optRst$optRst$param # param contains a,b,c and the main part's target mean.
+d = NGFMfitDistr::solve_d(param, eps= 1e-8, maxit = 100)
+abcd = param
+abcd[4, ] = d
+
+# Compute the maxes as the 99th percentile of the TrB distribution.
+maxQuantile = 0.99
+tailProbThreshold = 1 - maxQuantile
+maxes = pmin(1, NGFMfitDistr::actuar_qtrbeta(
+  1 - tailProbThreshold / (1 - optRst$P0), abcd))
+
+# Non-finite values could be resulted due to limited numeric precision.
+maxes[!is.finite(maxes)] = 0
+maxLowerBound = 0.05 # Put a lower bound on the maxes.
+maxes = pmax(maxLowerBound, maxes)
+
+# Find the longest nondecreasing subsequence.
+ind = NGFMfitDistr::longestNonDecreasingSubseq(maxes)
+
+# Interpolation.
+maxFun = splinefun(x =  targetMDRs[ind], y = maxes[ind], method = "linear")
+maxes = maxFun(targetMDRs) # Obtain all the maxes.
+\end{minted}
+Making the $\max$es can also be simplified to one function call:
+\begin{minted}[obeytabs=true,tabsize=2,bgcolor=bg,fontsize=\footnotesize]{R}
+maxes = NGFMfitDistr::makeMax(
+  MDR = targetMDRs, P0 = optRst$P0, abcd = abcd, tailThreshold = 1 - 0.99, 
+  minMax = 0.05, interpolationMethod = "linear")
+\end{minted}
+The final step is to input the $\max$es, $\hat{P}_0$ and TrB parameters to the discretization function:
+\begin{minted}[obeytabs=true,tabsize=2,bgcolor=bg,fontsize=\footnotesize]{R}
+TrBtable = rbind(targetMDRs, maxes, optRst$P0, abcd)  
+pmftable = NGFMfitDistr::fullDiscretize(
+	TrBtable = TrBtable, 
+	supportSizes = c(42L, 64L), # Discretize TrBs on both 42 and 64-point supports.
+	regridMethod = "lr",
+	RIBlib = "Numerical Recipes",
+	outputProbsInRows = TRUE,
+	fineDiscretizationSize = 2000,
+	maxCore = 1000, 
+	verbose = TRUE,
+	downScaleSupport = FALSE,
+	figureDir = "../tmpfigure",
+	empDistrsLists = optRst$empDistrsLists,
+	mdrRangeInData = optRst$mdrRangeInData,
+	claimsDataForScoring = NULL
+)
+\end{minted}
+The TrB parameter table and the 42/64-point PMF tables are saved as follows:
+\begin{minted}[obeytabs=true,tabsize=2,bgcolor=bg,fontsize=\footnotesize]{R}
+tb = as.data.frame(pmftable$tuned$p42)
+colnames(tb) = c("MDR", "max", paste0("P", 1:(ncol(tb) - 2L)))
+data.table::fwrite(tb, row.names = TRUE, 
+                 file = "../tempFiles/examplePMF42.csv")
+
+tb = as.data.frame(pmftable$tuned$p64)
+colnames(tb) = c("MDR", "max", paste0("P", 1:(ncol(tb) - 2L)))
+data.table::fwrite(tb, row.names = TRUE, 
+                 file = "../tempFiles/examplePMF64.csv")
+
+tb = as.data.frame(t(TrBtable))
+colnames(tb) = c("MDR", "max", "P0", "a", "b", "c", "d")
+data.table::fwrite(tb, file = "../tempFiles/exampleTrBtable.csv")
+\end{minted}
+Historically, the PMF table had an extra column of row indices, so we set \texttt{row.names = TRUE}. 
+
+$P_0$s and \text{max}es in  \texttt{examplePMF64.csv}, \texttt{examplePMF42.csv} and \texttt{exampleTrBtable.csv} are not necessarily equal due to unavoidable errors in discretization and fine tuning for imposing monotonicity.
+
+
+%In each window, our goal is to fit the data with a TrB distribution. Additionally, the TrB's mean should be equal to $\texttt{targetMDR}_{\text{main}}$.
+%
+%
+%
+%(mMDR, $P_0$) where $P_0=0$, and compute the ``empirical" distribution of DRs in each window. Here, the ``empirical" distribution is characterized by the PMF of DRs. Computing the PMF is similar to making a histogram except that we use regriding instead of bucketing and frequency normalization [REF].
+
+
+
+
+
+
+	
+
+
+\end{document}

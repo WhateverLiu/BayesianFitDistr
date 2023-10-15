@@ -1,0 +1,18 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{TrBtable}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n+nf}{rbind}\PYG{p}{(}\PYG{n}{targetMDRs}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{maxes}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{optRst}\PYG{o}{\PYGZdl{}}\PYG{n}{P0}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{abcd}\PYG{p}{)}
+\PYG{n}{pmftable}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n}{NGFMfitDistr}\PYG{o}{::}\PYG{n+nf}{fullDiscretize}\PYG{p}{(}
+\PYG{+w}{	}\PYG{n}{TrBtable}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n}{TrBtable}\PYG{p}{,}
+\PYG{+w}{	}\PYG{n}{supportSizes}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n+nf}{c}\PYG{p}{(}\PYG{l+m}{42L}\PYG{p}{,}\PYG{+w}{ }\PYG{l+m}{64L}\PYG{p}{),}\PYG{+w}{ }\PYG{c+c1}{\PYGZsh{} Discretize TrBs on both 42 and 64\PYGZhy{}point supports.}
+\PYG{+w}{	}\PYG{n}{regridMethod}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}lr\PYGZdq{}}\PYG{p}{,}
+\PYG{+w}{	}\PYG{n}{RIBlib}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}Numerical Recipes\PYGZdq{}}\PYG{p}{,}
+\PYG{+w}{	}\PYG{n}{outputProbsInRows}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{k+kc}{TRUE}\PYG{p}{,}
+\PYG{+w}{	}\PYG{n}{fineDiscretizationSize}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+m}{2000}\PYG{p}{,}
+\PYG{+w}{	}\PYG{n}{maxCore}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+m}{1000}\PYG{p}{,}
+\PYG{+w}{	}\PYG{n}{verbose}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{k+kc}{TRUE}\PYG{p}{,}
+\PYG{+w}{	}\PYG{n}{downScaleSupport}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{k+kc}{FALSE}\PYG{p}{,}
+\PYG{+w}{	}\PYG{n}{figureDir}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}../tmpfigure\PYGZdq{}}\PYG{p}{,}
+\PYG{+w}{	}\PYG{n}{empDistrsLists}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n}{optRst}\PYG{o}{\PYGZdl{}}\PYG{n}{empDistrsLists}\PYG{p}{,}
+\PYG{+w}{	}\PYG{n}{mdrRangeInData}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n}{optRst}\PYG{o}{\PYGZdl{}}\PYG{n}{mdrRangeInData}\PYG{p}{,}
+\PYG{+w}{	}\PYG{n}{claimsDataForScoring}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{k+kc}{NULL}
+\PYG{p}{)}
+\end{Verbatim}

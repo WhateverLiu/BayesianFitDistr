@@ -1,0 +1,17 @@
+Package: NGFMfitDistr
+Type: Package
+Title: NGFM Distribution Fitting Toolbox
+Version: 1.0.5
+Author: Charlie Wusuo Liu
+Maintainer: Charlie Wusuo Liu <wliu@verisk.com>
+Description: Fit and discretize NGFM (New Generation Financial Module) compliant inflated Transformed Beta distributions.
+License: GPL-3
+Encoding: UTF-8
+ByteCompile: true
+Imports: keyALGs, actuar, stats, grDevices, graphics, Rcpp
+LinkingTo: Rcpp, RcppEigen, BH, actuar
+SystemRequirements: GNU make
+NeedsCompilation: yes
+Suggests: R.rsp
+VignetteBuilder: R.rsp
+RoxygenNote: 7.2.3

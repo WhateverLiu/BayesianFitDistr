@@ -1,0 +1,6 @@
+`.sourceCpp_13_DLLInfo` <- dyn.load('/finance_develop/Charlie/BayesianFitDistr/Rpackage/tempFiles/sourceCpp-x86_64-redhat-linux-gnu-1.0.11/sourcecpp_164141afd1426/sourceCpp_31.so')
+
+LBFGSBtrbFit <- Rcpp:::sourceCppFunction(function(abc_lm1, empDistr, abcLB = numeric(0), abcUB = numeric(0), scaleEps = 1e-8, scaleMaxit = 100L, distanceFun = "likelihood", max_iterations = 100L, RIBlib = "R::pbeta", hgrad = 0, centralDiff = TRUE, m = 6L, epsilon = 1e-5, epsilon_rel = 1e-5, past = 1L, delta = 1e-10, max_submin = 10L, max_linesearch = 20L, min_step = 1e-20, max_step = 1e+20, ftol = 1e-4, wolfe = 0.9) {}, FALSE, `.sourceCpp_13_DLLInfo`, 'sourceCpp_13_LBFGSBtrbFit')
+LBFGSBtrbFitList <- Rcpp:::sourceCppFunction(function(abc, lm1, empDistrList, abcLB = as.numeric( c(1.01, 0.1, 0.1)), abcUB = as.numeric( c(30, 30, 30)), scaleEps = 1e-8, scaleMaxit = 100L, distanceFun = "likelihood", max_iterations = 100L, maxCore = 15L, RIBlib = "Numerical Recipes", sequentialUpdate = -1L, hgrad = 0, centralDiff = TRUE, m = 6L, epsilon = 1e-5, epsilon_rel = 1e-5, past = 1L, delta = 1e-10, max_submin = 10L, max_linesearch = 20L, min_step = 1e-20, max_step = 1e+20, ftol = 1e-4, wolfe = 0.9) {}, FALSE, `.sourceCpp_13_DLLInfo`, 'sourceCpp_13_LBFGSBtrbFitList')
+
+rm(`.sourceCpp_13_DLLInfo`)

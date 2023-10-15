@@ -1,0 +1,14 @@
+*/?*.[Rr][Dd]ata
+*/?*CharlieTempMP
+nosync
+data
+Pipeline2
+dlls
+NGFMfitDistr.Rcheck
+Rpackage-001
+tmpfigure
+tmpfigure2
+figure
+./**/*.pdf
+./**/*.png
+

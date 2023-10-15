@@ -1,0 +1,8 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n+nf}{data}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}NewZealandCvgA\PYGZdq{}}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{package}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+s}{\PYGZsq{}NGFMfitDistr\PYGZsq{}}\PYG{p}{)}
+\PYG{n}{dat}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n}{NewZealandCvgA}
+\PYG{n+nf}{str}\PYG{p}{(}\PYG{n}{dat}\PYG{p}{)}
+\PYG{c+c1}{\PYGZsh{} \PYGZsq{}data.frame\PYGZsq{}:	178398 obs. of  2 variables:}
+\PYG{c+c1}{\PYGZsh{} \PYGZdl{} MDR: num  1e\PYGZhy{}04 1e\PYGZhy{}04 1e\PYGZhy{}04 1e\PYGZhy{}04 1e\PYGZhy{}04 1e\PYGZhy{}04 1e\PYGZhy{}04 1e\PYGZhy{}04 1e\PYGZhy{}04 1e\PYGZhy{}04 ...}
+\PYG{c+c1}{\PYGZsh{} \PYGZdl{} CDR: num  0 0 0 0 0 0 0 0 0 0 ...}
+\end{Verbatim}

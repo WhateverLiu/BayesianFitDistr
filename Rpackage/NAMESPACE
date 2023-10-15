@@ -1,0 +1,7 @@
+exportPattern("^[[:alpha:]]+")
+useDynLib(NGFMfitDistr)
+importFrom("grDevices", "dev.off", "pdf", "png")
+importFrom("graphics", "axis", "hist", "layout", "legend", "lines",
+             "par", "plot.new", "text", "title")
+importFrom("stats", "aggregate", "approxfun", "splinefun")
+importFrom("Rcpp", "evalCpp")

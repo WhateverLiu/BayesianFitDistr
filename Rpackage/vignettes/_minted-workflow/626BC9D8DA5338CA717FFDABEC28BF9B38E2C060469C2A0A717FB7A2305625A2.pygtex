@@ -1,0 +1,25 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{c+c1}{\PYGZsh{} Assemble the matrix of a, b, c, d:}
+\PYG{n}{param}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n}{optRst}\PYG{o}{\PYGZdl{}}\PYG{n}{optRst}\PYG{o}{\PYGZdl{}}\PYG{n}{param}\PYG{+w}{ }\PYG{c+c1}{\PYGZsh{} param contains a,b,c and the main part\PYGZsq{}s target mean.}
+\PYG{n}{d}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n}{NGFMfitDistr}\PYG{o}{::}\PYG{n+nf}{solve\PYGZus{}d}\PYG{p}{(}\PYG{n}{param}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{eps}\PYG{o}{=}\PYG{+w}{ }\PYG{l+m}{1e\PYGZhy{}8}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{maxit}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+m}{100}\PYG{p}{)}
+\PYG{n}{abcd}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n}{param}
+\PYG{n}{abcd}\PYG{p}{[}\PYG{l+m}{4}\PYG{p}{,}\PYG{+w}{ }\PYG{p}{]}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n}{d}
+
+\PYG{c+c1}{\PYGZsh{} Compute the maxes as the 99th percentile of the TrB distribution.}
+\PYG{n}{maxQuantile}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+m}{0.99}
+\PYG{n}{tailProbThreshold}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+m}{1}\PYG{+w}{ }\PYG{o}{\PYGZhy{}}\PYG{+w}{ }\PYG{n}{maxQuantile}
+\PYG{n}{maxes}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n+nf}{pmin}\PYG{p}{(}\PYG{l+m}{1}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{NGFMfitDistr}\PYG{o}{::}\PYG{n+nf}{actuar\PYGZus{}qtrbeta}\PYG{p}{(}
+\PYG{+w}{  }\PYG{l+m}{1}\PYG{+w}{ }\PYG{o}{\PYGZhy{}}\PYG{+w}{ }\PYG{n}{tailProbThreshold}\PYG{+w}{ }\PYG{o}{/}\PYG{+w}{ }\PYG{p}{(}\PYG{l+m}{1}\PYG{+w}{ }\PYG{o}{\PYGZhy{}}\PYG{+w}{ }\PYG{n}{optRst}\PYG{o}{\PYGZdl{}}\PYG{n}{P0}\PYG{p}{),}\PYG{+w}{ }\PYG{n}{abcd}\PYG{p}{))}
+
+\PYG{c+c1}{\PYGZsh{} Non\PYGZhy{}finite values could be resulted due to limited numeric precision.}
+\PYG{n}{maxes}\PYG{p}{[}\PYG{o}{!}\PYG{n+nf}{is.finite}\PYG{p}{(}\PYG{n}{maxes}\PYG{p}{)]}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+m}{0}
+\PYG{n}{maxLowerBound}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+m}{0.05}\PYG{+w}{ }\PYG{c+c1}{\PYGZsh{} Put a lower bound on the maxes.}
+\PYG{n}{maxes}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n+nf}{pmax}\PYG{p}{(}\PYG{n}{maxLowerBound}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{maxes}\PYG{p}{)}
+
+\PYG{c+c1}{\PYGZsh{} Find the longest nondecreasing subsequence.}
+\PYG{n}{ind}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n}{NGFMfitDistr}\PYG{o}{::}\PYG{n+nf}{longestNonDecreasingSubseq}\PYG{p}{(}\PYG{n}{maxes}\PYG{p}{)}
+
+\PYG{c+c1}{\PYGZsh{} Interpolation.}
+\PYG{n}{maxFun}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n+nf}{splinefun}\PYG{p}{(}\PYG{n}{x}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{  }\PYG{n}{targetMDRs}\PYG{p}{[}\PYG{n}{ind}\PYG{p}{],}\PYG{+w}{ }\PYG{n}{y}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n}{maxes}\PYG{p}{[}\PYG{n}{ind}\PYG{p}{],}\PYG{+w}{ }\PYG{n}{method}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}linear\PYGZdq{}}\PYG{p}{)}
+\PYG{n}{maxes}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n+nf}{maxFun}\PYG{p}{(}\PYG{n}{targetMDRs}\PYG{p}{)}\PYG{+w}{ }\PYG{c+c1}{\PYGZsh{} Obtain all the maxes.}
+\end{Verbatim}

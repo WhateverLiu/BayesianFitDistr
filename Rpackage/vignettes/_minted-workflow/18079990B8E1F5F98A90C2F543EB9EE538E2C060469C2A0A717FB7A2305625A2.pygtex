@@ -1,0 +1,11 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{optRst}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n}{NGFMfitDistr}\PYG{o}{::}\PYG{n+nf}{fullFit}\PYG{p}{(}
+\PYG{+w}{	}\PYG{n}{mdr}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n}{dat}\PYG{o}{\PYGZdl{}}\PYG{n}{MDR}\PYG{p}{,}
+\PYG{+w}{	}\PYG{n}{cdr}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n}{dat}\PYG{o}{\PYGZdl{}}\PYG{n}{CDR}\PYG{p}{,}
+\PYG{+w}{	}\PYG{n}{windowSize}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n+nf}{as.integer}\PYG{p}{(}\PYG{n+nf}{round}\PYG{p}{(}\PYG{n+nf}{nrow}\PYG{p}{(}\PYG{n}{dat}\PYG{p}{)}\PYG{+w}{ }\PYG{o}{*}\PYG{+w}{ }\PYG{l+m}{0.01}\PYG{p}{)),}
+\PYG{+w}{	}\PYG{n}{slidingSpeed}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n+nf}{as.integer}\PYG{p}{(}\PYG{n+nf}{round}\PYG{p}{(}\PYG{n+nf}{nrow}\PYG{p}{(}\PYG{n}{dat}\PYG{p}{)}\PYG{+w}{ }\PYG{o}{*}\PYG{+w}{ }\PYG{l+m}{1e\PYGZhy{}4}\PYG{p}{)),}
+\PYG{+w}{	}\PYG{n}{sampleSize}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n+nf}{round}\PYG{p}{(}\PYG{n+nf}{nrow}\PYG{p}{(}\PYG{n}{dat}\PYG{p}{)}\PYG{+w}{ }\PYG{o}{*}\PYG{+w}{ }\PYG{p}{(}\PYG{l+m}{1}\PYG{+w}{ }\PYG{o}{\PYGZhy{}}\PYG{+w}{ }\PYG{l+m}{1}\PYG{+w}{ }\PYG{o}{/}\PYG{+w}{ }\PYG{n+nf}{exp}\PYG{p}{(}\PYG{l+m}{1}\PYG{p}{))),}
+\PYG{+w}{	}\PYG{n}{abc}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n+nf}{matrix}\PYG{p}{(}\PYG{n+nf}{c}\PYG{p}{(}\PYG{l+m}{4}\PYG{p}{,}\PYG{+w}{ }\PYG{l+m}{1}\PYG{p}{,}\PYG{+w}{ }\PYG{l+m}{1.5}\PYG{p}{)),}
+\PYG{+w}{	}\PYG{n}{figureDir}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}../tmpfigure2\PYGZdq{}}
+\PYG{p}{)}
+\end{Verbatim}

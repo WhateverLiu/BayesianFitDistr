@@ -1,0 +1,1737 @@
+\documentclass[aspectratio=169]{beamer}
+\beamertemplatenavigationsymbolsempty
+%\includeonlyframes{current}
+\usefonttheme{professionalfonts}
+%\usepackage{newtxtext,newtxmath}
+\usepackage{animate}
+\usepackage{graphicx}
+\usepackage[labelformat=empty]{caption}
+\usepackage{beamerthemesplit}
+\usepackage{textpos}
+\usepackage[percent]{overpic}
+\usepackage{multirow}
+\usepackage{array}
+\usepackage{hhline}
+\usepackage{siunitx}
+\usepackage{comment}
+\usepackage{tikz}
+\usepackage{transparent}
+\usepackage{soul}
+%\usepackage{enumitem}
+%\usepackage{transparent}
+%\usepackage[orientation=landscape,size=custom,width=16,height=9,scale=0.5,debug]{beamerposter} 
+
+\newcommand{\conv}{\scalebox{0.6}{$\perp$}}
+\newcommand{\como}{\scalebox{0.6}{$+$}}
+\newcommand{\Var}{\mathrm{Var}}
+
+
+\title{Bayesian distribution fitting}
+\author{Charlie Wusuo Liu}
+%\date{May 29, 2019}
+
+
+\expandafter\def\expandafter\insertshorttitle\expandafter{%
+	\insertshorttitle\hfill%
+	\insertframenumber\,/\,\inserttotalframenumber}
+
+%\setbeamercovered{%
+	%	still covered={\opaqueness<1->{10}},  
+	%	again covered={\opaqueness<1->{10}}}
+
+
+\begin{document}
+\begin{frame}{A Bayesian approach to distribution fitting}
+\begin{textblock}{10.5}(-0.5,-5)
+\tiny\textbf{Objective}: Frame the problem in Bayesian context.\medskip
+
+\tiny\textbf{Foundation}: Locality of distributions along the MDR axis.\medskip
+
+\begin{enumerate}
+\item Close MDRs $\implies$ similar TrB PDFs $\implies$ similar TrB parameters.\medskip
+
+\item More than just assumptions: smooth transition is required in distributions along the MDR axis.\medskip 
+
+\item Posterior from the nearest MDR is used as prior.\medskip
+\end{enumerate}%\pause
+
+\begin{textblock}{1}(10.5,-5.2)
+\includegraphics[scale=0.57]{../figure/BayesUpdate.pdf}
+\end{textblock}%\pause
+
+\tiny\textbf{Algorithms}:\medskip
+
+\begin{enumerate}
+
+\tiny\item Kalman filter.\medskip
+
+\begin{itemize}
+
+\tiny\item \textbf{Unknown} transformation of $(a, b, c, d)$ but \textbf{known} likelihood --- TrB.\medskip 
+
+\tiny\item Not obviously suitable: non-Gaussian likelihood + posterior. \medskip
+
+\tiny\item Impose Gaussianity. Use posterior sample mean + covariance for reparameterization.\medskip
+
+\begin{itemize}
+\tiny\item Borrow from the idea of Unscented Transform.\medskip
+\end{itemize}
+\end{itemize}
+\end{enumerate}
+\end{textblock}
+
+
+\end{frame}
+
+
+\begin{frame}{A Bayesian approach to distribution fitting}
+
+\begin{textblock}{1}(10.5,-5.2)
+\includegraphics[scale=0.57]{../figure/BayesUpdate.pdf}
+\end{textblock}
+
+\begin{textblock}{10}(-0.5,-5)
+
+\tiny\textbf{Algorithms:}\medskip
+
+\begin{enumerate}\setcounter{enumi}{1}
+
+\tiny\item Particle filter.\medskip
+
+\begin{itemize}
+\tiny\item Sample Impoverishment. Remedies:\medskip
+
+\begin{itemize}
+\tiny\item Resample less frequently.\medskip
+
+\tiny\item Sample roughening: add random noise to resampled particles \href{https://www.hindawi.com/journals/mpe/2015/168045/}{\textcolor{blue}{[REF]}}.\medskip
+
+\tiny\item MCMC (Markov Chain Monte Carlo). Extremely slow due to long chain, unless we infer parametric posterior for every new MDR.\medskip
+
+\end{itemize}%\pause
+
+\tiny\item More on combating Sample Impoverishment:\medskip
+
+\begin{itemize}
+%\tiny\item Suitable only if proportional posterior probability can be evaluated somewhat quickly.\medskip
+
+\tiny\item For 1-d case, one could first compute a histogram from the weighted particles, and then sample from it assuming uniform distribution within bins.\medskip
+
+\tiny\item For high-d posterior, use Metropolis Hastings / Gibbs to draw sample one at a time. Remove burn-in afterwards.\medskip
+
+\tiny\item Hamilton MCMC, NUTS (No U-Turn Sampler) require fewer samples to faithfully represent the full distribution but demand gradients of the posterior during computation. Not popular until auto-differentiation libraries for deep learning matured in mid 2010s.
+\end{itemize}
+
+\end{itemize}
+
+\end{enumerate}
+\medskip
+
+\tiny\textbf{Point estimate:}\medskip
+
+\tiny From posterior samples of $(a, b, c, d)$, select the one that maximizes the posterior likelihood.
+
+\end{textblock}
+\end{frame}
+
+
+\begin{frame}{A Bayesian approach to distribution fitting}
+\begin{textblock}{1}(10.5,-5.2)
+\includegraphics[scale=0.57]{../figure/BayesUpdate.pdf}
+\end{textblock}
+
+\begin{textblock}{9}(-0.5,-5)
+General steps:\medskip
+
+\begin{enumerate}
+\item Fit and smooth $P_0$.\medskip%\pause
+
+\item Fit TrB distributions to the nonzero claim damage ratios. Constraint:
+\begin{equation*}
+\mathbb{E}(\min(X, 1)) = \frac{\text{MDR}}{1 - P_0}
+\end{equation*}%\pause
+
+\item Discretization. PDF $\implies$ PMF.\medskip%\pause
+
+\item Fine-tuning.\medskip
+
+\begin{itemize}
+\item Match PMF's mean to MDR, ensure monotonicities, etc.
+\end{itemize}
+
+\end{enumerate}
+
+
+
+
+\end{textblock}
+
+\end{frame}
+
+
+%% DO NOT DELETE
+%\begin{frame}{Incorporate constraint of limited mean, approach I}
+%
+%
+%\begin{textblock}{9}(-0.5,-5)
+%
+%%\tiny The fitted distribution at an MDR, e.g., 0.05, should have limited mean $\mathbb{E}(\min(X, 1))=0.05$.\medskip
+%
+%Consider $X|(a, b, c, d)\sim$TrB:
+%\begin{equation*}
+%\begin{split}
+%\mu_{\text{lim}}& = \mathbb{E}(\min(X, 1)|a, b, c, d)\\
+%&= \frac{ \theta  \Gamma( \tau + 1/\gamma )\Gamma( \alpha - 1/\gamma )  }{\Gamma(\alpha) \Gamma(\tau) } \beta ( \tau + 1 / \gamma,  \alpha - 1 / \gamma ; u  )\\
+%& + 1 - \beta ( \tau, \alpha ; u )
+%\end{split}
+%\end{equation*}
+%where $\theta=d$, $\gamma=c$, $\tau = b/c$, $\alpha = a / c$, $u = 1 / (\theta ^ \gamma + 1)$ [\textcolor{blue}{Klugman 2019, A.2.1.1}].\medskip
+%
+%Given a prior joint PDF for $(a, b, c, d)$, deriving the PDF of $\mu_{\text{lim}}$ directly is \textit{hard}.
+%\end{textblock}
+%
+%\begin{textblock}{1}(9.3,-5.2)
+%\includegraphics[scale=0.57]{../figure/BayesUpdateBracket.pdf}
+%\end{textblock}
+%
+%\end{frame}
+
+
+
+\begin{frame}{Incorporate constraint of limited mean, approach I}
+\begin{textblock}{9}(-0.5,-5)
+Consider $X|(a, b, c, d)\sim$TrB:
+\begin{equation*}
+\begin{split}
+\mu_{\text{lim}}& = \mathbb{E}(\min(X, 1)|a, b, c, d)\\
+&= \frac{ d \cdot  \Gamma\left(  \frac{b + 1}{c}  \right)\Gamma\left(   \frac{a-1}{c} \right)  }{\Gamma\left(    \frac{a}{c}  \right) \Gamma\left( \frac{b}{c} \right) }\cdot \beta \left( \frac{b+1}{c}  ,  \frac{a-1}{c} ;   \frac{1}{d^c+1}  \right)\\
+&+1 - \beta \left( \frac{b}{c} , \frac{a}{c} ; \frac{1}{d^c+1} \right)\text{ where}
+\end{split}
+\end{equation*}
+\begin{equation*}
+\beta(u, v; x) =  \frac{\Gamma(u + v)}{ \Gamma(u)\Gamma(v) }\int_{0}^{x} t^{u-1}(1-t)^{v-1}dt\;.
+\end{equation*}
+[\textcolor{blue}{Klugman 2019, A.2.1.1}].\bigskip
+
+Given a prior joint PDF for $(a, b, c, d)$, deriving the PDF of $\mu_{\text{lim}}$ directly is \textit{hard}.
+\end{textblock}
+
+\begin{textblock}{1}(9.4,-5.2)
+\includegraphics[scale=0.57]{../figure/BayesUpdateBracket.pdf}
+\end{textblock}
+
+\end{frame}
+
+
+
+\begin{frame}{Incorporate constraint of limited mean, approach I}
+\begin{textblock}{1}(9.4,-5.2)
+\includegraphics[scale=0.57]{../figure/BayesUpdateBracket.pdf}
+\end{textblock}
+\begin{textblock}{9}(-0.5,-5)
+
+\tiny Bayesian nonlinear regression:
+\tiny \begin{equation*}
+\begin{split}
+\text{Let }\mu_{\text{lim}}\sim\mathcal{N}(m, \sigma ^ 2) \text{ where}
+\end{split}
+\end{equation*}
+\tiny \begin{equation*}
+\begin{split}
+&m = \frac{ d \cdot  \Gamma\left(  \frac{b + 1}{c}  \right)\Gamma\left(   \frac{a-1}{c} \right)  }{\Gamma\left(    \frac{a}{c}  \right) \Gamma\left( \frac{b}{c} \right) }\cdot \beta \left( \frac{b+1}{c}  ,  \frac{a-1}{c} ;   \frac{1}{d^c+1}  \right) +1 - \beta \left( \frac{b}{c} , \frac{a}{c} ; \frac{1}{d^c+1} \right)\;,\\
+&\beta(u, v; x) =  \frac{\Gamma(u + v)}{ \Gamma(u)\Gamma(v) }\int_{0}^{x} t^{u-1}(1-t)^{v-1}dt\;,
+\end{split}
+\end{equation*}
+$\sigma^2$ is predefined.\medskip\medskip%\pause
+
+\tiny Assumption: $\mu_{\text{lim}}$ and $X$ (claim damage ratio) are conditionally independent on $(a, b, c, d)$ , then
+\tiny \begin{equation*}
+\text{Pr}(a, b, c, d|x, \mu_{\text{lim}}) \propto \text{Pr}(a, b, c, d)  \cdot \text{Pr}(x|a, b, c, d) \cdot \text{Pr}(\mu_{\text{lim}}|a, b, c, d)    
+\end{equation*}
+
+\tiny In a MDR interval, the observed $\mu_{\text{lim}}$ are constant =  MDR$/(1 - P_0)$ .\medskip%\pause
+
+\tiny The approach is more or less equivalent to Bayesian optimization: for samples of $(a,b,c,d)$ that produce $\mu_{\text{lim}}$ closer to MDR$/(1 - P_0)$, we reward them with higher weight (probability). The reward function is $\propto$ a Gaussian kernel of $\|$sampled $\mu_{\text{lim}}$ - MDR$/(1 - P_0)\|$.\medskip%\pause
+
+\tiny Comparing to the frequentist approach, this corresponds to an objective function that combine error in mean and distance between PMFs. 
+\end{textblock}
+
+\end{frame}
+
+
+\begin{frame}{Incorporate constraint of limited mean, approach II}
+\begin{textblock}{9}(-0.5,-5)
+Given observed $\mu_{\text{lim}}$ for a sampled $(a, b, c)$, solve $d$ from:
+\begin{equation*}
+\begin{split}
+\mu_{\text{lim}} &= \frac{ d \cdot  \Gamma\left(  \frac{b + 1}{c}  \right)\Gamma\left(   \frac{a-1}{c} \right)  }{\Gamma\left(    \frac{a}{c}  \right) \Gamma\left( \frac{b}{c} \right) }\cdot \beta \left( \frac{b+1}{c}  ,  \frac{a-1}{c} ;   \frac{1}{d^c+1}  \right)\\
+&+1 - \beta \left( \frac{b}{c} , \frac{a}{c} ; \frac{1}{d^c+1} \right)
+\end{split}
+\end{equation*}
+
+$\mu_{\text{lim}}$ is an increasing (?) function of $d$ . Use bisection to solve for $d$ on the fly.\medskip
+
+Newton-Raphson might be worth a try since $ \partial \mu_{\text{lim}}/\partial d$ is not too difficult to compute. Requires extra care to bound the solution in $(0,+\infty)$.\medskip
+
+Approach II removes the stochasticity in matching MDR. Preferred. 
+\end{textblock}
+
+
+\begin{textblock}{1}(10.5,-5.2)
+\includegraphics[scale=0.57]{../figure/BayesUpdateII.pdf}
+\end{textblock}
+\end{frame}
+
+
+\begin{frame}{Summary}
+
+\begin{textblock}{9}(-0.5,-5)
+\tiny \textbf{Bayesian advantages}:\medskip
+
+\begin{itemize}
+\tiny\item Robust.\medskip
+
+\tiny \item Offer richer statistics, e.g. parameter covariances, credible intervals.\medskip
+
+\tiny \item Ensure smooth transition in fitted distributions along the MDR axis.\medskip
+\end{itemize}
+
+\tiny \textbf{Disadvantages}:\medskip
+
+\tiny \begin{itemize}
+\item Slow. \medskip
+
+\item Choosing prior can be subjective. Non-informative priors will unlikely lead to different results from the frequentist approach.\medskip
+\end{itemize}
+
+\tiny \textbf{Notes}: \medskip 
+
+\tiny \begin{enumerate}
+
+\item We still take only a point estimate, e.g., posterior maximum likelihood estimator, as the final result.\medskip 
+
+\begin{itemize}
+\tiny\item If the frequentist optimizes $(a, b, c, d)$ using the maximum likelihood objective, then the difference between Bayesian and the frequentist lies only in the optimization methods: deterministic vs. stochastic.\medskip 
+\end{itemize}
+
+\item If catastrophe model predictions are poor, Bayesian will bring no magic. 
+\end{enumerate}
+
+
+\end{textblock}
+
+
+
+
+\begin{textblock}{1}(10.5,-5.2)
+\includegraphics[scale=0.57]{../figure/BayesUpdateII.pdf}
+\end{textblock}
+\end{frame}
+
+
+%\begin{frame}{ Incorporate historical parameters}
+%Use Japan earthquake as an example.
+%
+%Let $\boldsymbol{x}_{m,\text{ Japan2023}}$ be the claim observations grouped into the bin for MDR $=m$ in a hypothetical claims dataset from a Japan earthquake in 2023.
+%\begin{center}
+%\begin{equation*}
+%\begin{split}
+%&p(a,b,c|\boldsymbol{x}_{m,\text{ Japan2023}} )  \propto  p(a,b,c|\boldsymbol{x}_{m,\text{ Japan2011}} ) \cdot p(\boldsymbol{x}_{m,\text{ Japan2023}} | a, b, c )\\
+%\propto\; &p(a,b,c)\cdot p(\boldsymbol{x}_{m,\text{ Japan2011}} | a, b, c )\cdot  p(\boldsymbol{x}_{m,\text{ Japan2023}} | a, b, c )
+%\end{split}
+%\end{equation*}
+%\end{center}
+%\end{frame}
+
+%\begin{frame}{ Incorporate historical parameters}
+%Use Japan earthquake as an example.\medskip
+%
+%Let $\boldsymbol{x}_{\text{Japan2023}}$ be the claim observations in a hypothetical claims dataset from a Japan earthquake in 2023.
+%\begin{center}
+%\begin{equation*}
+%\begin{split}
+%&p(a,b,c|\boldsymbol{x}_{\text{Japan2023}} )  \propto  p(a,b,c|\boldsymbol{x}_{\text{Japan2011}} ) \cdot p(\boldsymbol{x}_{\text{Japan2023}} | a, b, c )\\
+%\propto\; &p(a,b,c)\cdot p(\boldsymbol{x}_{\text{Japan2011}} | a, b, c )\cdot  p(\boldsymbol{x}_{\text{Japan2023}} | a, b, c )\\
+%=\; &p(a,b,c)\cdot p(\boldsymbol{x}_{\text{Japan2011}}, \boldsymbol{x}_{\text{Japan2023}} | a, b, c )
+%\end{split}
+%\end{equation*}
+%\end{center}
+%Approach I: Merge $\boldsymbol{x}_{\text{Japan2011}}$ and $\boldsymbol{x}_{\text{Japan2023}}$, then estimate $a, b, c$. However, this does not inform the previously fitted $a^\prime, b^\prime, c^\prime$ given $\boldsymbol{x}_{\text{Japan2011}}$.
+%\end{frame}
+
+
+
+\begin{frame}{ Update distributions with historical TrB parameters and new claims data }
+\scriptsize Use Japan earthquake as an example. Let $\boldsymbol{x}_{\text{Japan2011}}$ be the Tohoku claims data. Let $\boldsymbol{x}_{\text{Japan2023}}$ be the claims data in a hypothetical event in Japan 2023.\medskip%\pause
+
+\scriptsize \textbf{Plain model}:
+\scriptsize \begin{center}
+$p(a,b,c,d|\boldsymbol{x}_{\text{Japan2011}}, \boldsymbol{x}_{\text{Japan2023}} )  \propto   p(a,b,c,d)\cdot p(\boldsymbol{x}_{\text{Japan2011}}, \boldsymbol{x}_{\text{Japan2023}} | a, b, c,d )$
+\end{center}
+
+\scriptsize This model ignores historical TrB parameters. The new estimates could fall far away from the historical, posing challenges to change management.\medskip%\pause
+
+\scriptsize \textbf{Preferred model}: $p(a,b,c,d|a_0,b_0,c_0,d_0,\boldsymbol{x}_{\text{Japan2023}})$ where $a_0,b_0,c_0,d_0$ are historical point estimates of the TrB parameters.
+\scriptsize\begin{center}
+$p(a,b,c,d|a_0,b_0,c_0,d_0, \boldsymbol{x}_{\text{Japan2023}} )  \propto   p(a,b,c,d)\cdot p(a_0,b_0,c_0,d_0, \boldsymbol{x}_{\text{Japan2023}} | a, b, c, d )$\smallskip
+
+$= p(a,b,c,d)\cdot p(a_0,b_0,c_0,d_0|a, b, c, d)\cdot p( \boldsymbol{x}_{\text{Japan2023}} | a, b, c, d )$
+\end{center}%\pause
+
+\scriptsize Notice $a_0,b_0,c_0,d_0$ are not claims like $\boldsymbol{x}_{\text{Japan2023}}$, but are parameters that characterize a distribution of claims.\medskip%\pause
+
+\scriptsize To evaluate $p(a_0,b_0,c_0,d_0|a,b,c,d)$, draw $\boldsymbol{x}_{\text{Japan2011}}^\prime\sim\text{TrB}(a_0, b_0, c_0, d_0)$, then
+\begin{center}
+$p(a,b,c,d|a_0, b_0, c_0, d_0, \boldsymbol{x}_{\text{Japan2023}} )  \propto   p(a,b,c,d)\cdot p(\boldsymbol{x}_{\text{Japan2011}}^\prime, \boldsymbol{x}_{\text{Japan2023}} | a, b, c,d )$
+\end{center}
+\end{frame}
+
+\begin{frame}{ Update distributions with historical TrB parameters and new claims data }
+
+\textbf{Model}:\smallskip
+%\begin{center}
+
+\begin{center}
+$p(a,b,c,d|a_0, b_0, c_0, d_0, \boldsymbol{x}_{\text{Japan2023}} )  \propto   p(a,b,c,d)\cdot p(\boldsymbol{x}_{\text{Japan2011}}^\prime, \boldsymbol{x}_{\text{Japan2023}} | a, b, c,d )$
+\end{center}
+\begin{center}
+$\boldsymbol{x}_{\text{Japan2011}}^\prime\sim\text{TrB}(a_0, b_0, c_0, d_0)$
+\end{center}\medskip%\pause
+
+What should be the sample size for $\boldsymbol{x}_{\text{Japan2011}}^\prime$ ?\medskip
+
+A natural choice: $N\left(\boldsymbol{x}_{\text{Japan2011}}^\prime\right) \gets N\left(\boldsymbol{x}_{\text{Japan2011}}\right)$.
+\medskip%\pause
+
+We adjust $N\left(\boldsymbol{x}_{\text{Japan2011}}^\prime\right)$ to reflect our believes in previous estimates vs. current data.\medskip
+
+For example, if we believe the 2011 data is twice as credible as the 2023 data, then let
+$N\left(\boldsymbol{x}_{\text{Japan2011}}^\prime\right)\gets2N\left(\boldsymbol{x}_{\text{Japan2023}}\right)$\medskip%\pause
+
+This gives full control of change management.
+
+\end{frame}
+
+
+\begin{frame}{Prior editing (Van Leeuwen)}
+
+Prior (sample) editing mimics Metropolis Hastings (MH) with great risks.\medskip%\pause
+
+MH \textit{edit}s the previous sampled particle by adding random noise, then accepts or rejects the new particle based on its posterior probability.\medskip
+
+\begin{itemize}
+\item MH converges to the true posterior if the random noise has certain properties.\medskip
+
+\item MH is statistically correct because \textbf{the prior and likelihood PDFs are known}.\medskip%\pause
+\end{itemize}
+
+Van Leeuwen prior editing \textit{edit}s previous particles and reevaluate them \textbf{using the likelihood PDF only, because the prior PDF is unknown --- the prior distribution is characterized by particles}. \medskip%\pause
+
+Over time, Van Leeuwen may push the posterior closer to the likelihood.\medskip%\pause
+
+This could hide the incorrectness of the underlying physical model --- when posterior equals likelihood, model output always matches observation.
+\end{frame}
+
+
+\begin{frame}{Progress}
+\begin{enumerate}
+\item Familiarized with probabilistic programming using \texttt{PyMC} in Python.\medskip
+
+\begin{itemize}
+\item Great tool for Bayesian inferences.\medskip
+
+\item Uses SOTA Hamilton / No-U-Turn MCMC for sampling.\medskip
+\end{itemize}
+
+\item Implemented a good number of R's fundamental functions using Python. The functions cover data wrangling, visualization, file manipulation. Made migration from R to Python easy. Good in the long run.\medskip
+
+\begin{itemize}
+\item Python is on average more efficient than R, but some fundamental functions, e.g., \texttt{match}, in R can be much faster. R's core team really optimized those functions down to the bottom. For example, R's \texttt{match} employs the same hashing technique in bucket-sort, while Python just sorts and compares.\medskip
+\end{itemize}
+
+\item Familiarized with Python and C++ integration using package \texttt{pybind11}.
+\end{enumerate}
+\end{frame}
+
+
+\begin{frame}{Moving average}
+\begin{textblock}{1}(7.4,-5)
+\includegraphics[scale=0.36]{../figure/mvAvgsDifferengWindowSizes.pdf}
+\end{textblock}
+
+\begin{textblock}{7.7}(-0.75,-5)
+\tiny First attempt:\smallskip
+
+\begin{itemize}
+\tiny \item Took Debora/Emile's groupings of claims data and $P_0$.
+
+\tiny \item Run particle filtering (PF).\medskip%\pause
+\end{itemize}
+
+\tiny Non-overlapping MDR intervals are hard to make PF work.\smallskip
+
+\begin{itemize}
+\tiny \item CDRs (claim damage ratios) vary too much from one interval to the next. Stable transition of parameters is hard to attain.\smallskip
+
+\begin{itemize}
+\tiny \item Debora/Emile's fitting also produces highly volatile parameters. Trends are then artificially imposed. Final distributions are largely detached from the originally fitted.
+\end{itemize}\medskip%\pause
+
+\tiny \item Particles of $(a, b, c)$ from the previous interval all have extremely small weights after likelihood evaluation in the current interval.\medskip
+
+\begin{itemize}
+\tiny \item Analogous to the underlying physical model being completely off.
+\end{itemize}
+\end{itemize}\medskip%\pause
+
+\tiny Sliding window moving average.\smallskip
+
+\begin{itemize}
+\item Use a window for data collection and slowly pass it over along the MDR axis. High frequency signals attenuated; trends revealed.\medskip%\pause
+
+\item Every new window has only a small proportion of new data. Stable transition of parameters is more likely.\medskip%\pause
+\end{itemize}
+
+\tiny Optimal window size by analyzing MDR vs. CDR? Ongoing research. 
+
+
+\end{textblock}
+\end{frame}
+
+
+\begin{frame}{Fit $P_0$}
+\begin{textblock}{1}(5,-4)
+\includegraphics[scale=0.39]{../figure/ws-1pct-speed-1pct.pdf}
+\end{textblock}
+
+\begin{textblock}{5}(-0.5,-5)
+\textbf{Constraint}: $P_0$ is a decreasing function of MDR. 
+\begin{itemize}
+\item $P_0(\text{MDR}=0) = 1$
+
+\item $P_0(\text{MDR}=1) = 0$
+\end{itemize}
+\end{textblock}
+\end{frame}
+
+
+\begin{frame}{Fit $P_0$} 
+\begin{textblock}{1}(5,-4)
+\includegraphics[scale=0.39]{../figure/ws-1pct-speed-1pct-lds.pdf}
+\end{textblock}
+
+\begin{textblock}{5}(-0.5,-5)
+\textbf{Constraint}: $P_0$ is a decreasing function of MDR. 
+\begin{itemize}
+\item $P_0(\text{MDR}=0) = 1$
+
+\item $P_0(\text{MDR}=1) = 0$
+\end{itemize}\medskip
+
+Find the longest decreasing subsequence.
+\begin{itemize}
+\item A classic \textit{dynamic programming} instance in algorithms.
+\end{itemize}
+
+\end{textblock}
+\end{frame}
+
+
+
+\begin{frame}{Fit $P_0$}
+\begin{textblock}{1}(5,-4)
+\includegraphics[scale=0.39]{../figure/ws-1pct-speed-1pct-lds-linear.pdf}
+\end{textblock}
+
+\begin{textblock}{5}(-0.5,-5)
+\textbf{Constraint}: $P_0$ is a decreasing function of MDR. 
+\begin{itemize}
+\item $P_0(\text{MDR}=0) = 1$
+
+\item $P_0(\text{MDR}=1) = 0$
+\end{itemize}\medskip
+
+Find the longest decreasing subsequence.
+\begin{itemize}
+\item A classic \textit{dynamic programming} instance in algorithms.
+\end{itemize}\medskip
+
+Approach I: Linear interpolation.
+
+
+\end{textblock}
+\end{frame}
+
+
+\begin{frame}{Fit $P_0$}
+\begin{textblock}{1}(5,-4)
+\includegraphics[scale=0.39]{../figure/ws-1pct-speed-1pct-lds-hyman.pdf}
+\end{textblock}
+
+\begin{textblock}{5}(-0.5,-5)
+\textbf{Constraint}: $P_0$ is a decreasing function of MDR. 
+\begin{itemize}
+\item $P_0(\text{MDR}=0) = 1$
+
+\item $P_0(\text{MDR}=1) = 0$
+\end{itemize}\medskip
+
+Find the longest decreasing subsequence.
+\begin{itemize}
+\item A classic \textit{dynamic programming} instance in algorithms.
+\end{itemize}\medskip
+
+Approach I: Linear spline.\medskip
+
+Approach II: Hyman convex cubic spline.
+\end{textblock}
+\end{frame}
+
+
+
+\begin{frame}{Fit $P_0$}
+\begin{textblock}{1}(5,-4)
+\includegraphics[scale=0.39]{../figure/ws-1pct-speed-1pct-lds-linear-monoConvexFit.pdf}
+\end{textblock}
+
+
+
+\begin{textblock}{5}(-0.5,-5)
+
+\tiny Approach III: Fully convex function in the form of
+\tiny \begin{equation*}
+\begin{split}
+&f(x) = \\
+&\exp(-\beta)[1 - x^\alpha\exp(\beta x ^ \gamma)]\\
+&+  1 - \exp(-\beta)
+\end{split}
+\end{equation*}
+\tiny Discovery:\medskip
+
+\begin{enumerate}
+\tiny \item The form is a modification on the CDF of the Tapered Pareto distribution. Researched during fire catalog downsampling.\medskip
+
+\tiny \item Experiments show it is quite versatile for fitting convex, monotonically decreasing curves in various shapes.\medskip
+
+\tiny\item Can be helpful with fitting parameters later if necessary.
+\end{enumerate}\medskip
+
+For now, stick to Approach I (linear spine) as it is the most faithful to data.
+\end{textblock}
+\end{frame}
+
+
+\begin{frame}{\normalsize Architecture. Goal: minimize human intervention in training.}
+%Implemented and tested stochastic optimization (SO) and Quasi-Newton fitting (L-BFGS-B).
+%\begin{itemize}
+%\item SO follows the simulated annealing approach 
+%\end{itemize}
+\begin{textblock}{7.5}(-1.2,-5.3)
+\begin{enumerate}
+\tiny\item Import data.
+
+\tiny\item Set sliding window size and speed.\smallskip
+
+\begin{itemize}
+\tiny\item Given by users. Recommendation in research. Autocorrelation? Elbow point?\smallskip%\pause
+\end{itemize}
+
+\tiny\item Model $P_0$ via ensemble.\smallskip
+
+\begin{itemize}
+\tiny\item Sample $K$, e.g. 30 random subsets of data. Each subset is, e.g., 2/3 of the full data. For each subset:\smallskip%\pause
+
+\tiny\item Compute the sequence of $P_0$s in all windows.\smallskip%\pause
+
+\tiny\item Find the longest nondecreasing subsequence and fit it with smoothing spline.\smallskip%\pause
+
+\tiny\item Mean of the $K$ splines is the final model.\smallskip%\pause
+\end{itemize}
+
+\tiny\item Remove zero claims from data. Sample $K$ random subsets again. For each subset:\smallskip
+
+\tiny\item Estimate 18999 empirical \textbf{cond}(\textbf{itional}) PMFs for all cond target MDRs.\smallskip%\pause
+
+\begin{itemize}
+\tiny\item PMFs for cond target MDR out of data range is extrapolated. We upscale (the support of) the PMF with the highest in-data MDR for the upper side, and downscale the PMF with the lowest in-data MDR for the bottom side.\smallskip%\pause
+
+\tiny\item The scaling is inherently adjusting parameter $d$ \textbf{before} training. Previous methodology manipulates $d$ for extrapolation \textbf{after} training.\smallskip%\pause
+
+\tiny\item Creating all 18999 empirical cond PMFs is necessary to make Bayesian update convenient and accurate.\smallskip%\pause
+\end{itemize}
+\end{enumerate}
+\end{textblock}
+
+\begin{textblock}{7.9}(6.5,-5.3)
+\begin{enumerate}\setcounter{enumi}{4}
+%\tiny\item Estimate 18999 empirical PMFs for all target MDRs.\smallskip
+
+\tiny\item \smallskip
+
+\begin{itemize}
+\tiny\item Users import 18999 old PMFs and define sampling weight $w$ on them.\smallskip%\pause
+
+\tiny\item $P_0\gets (1-w)P_0 + w P_0^{\text{old}}$ .\smallskip%\pause
+
+\tiny\item For each MDR, update the empirical cond PMF by mixing it with the old cond PMF.\smallskip
+\end{itemize}
+
+\tiny\item Fit the 18999 empirical PMFs using quasi-Newton methods.\smallskip
+
+\begin{itemize}
+\tiny\item Dissected TrB and its derivatives with respect to parameters. Implemented multiple expansion series for computing thread-safe Regularized Incomplete Beta function. Implemented on-the-fly solver to parameter $d$ inside objective function for imposing the limited mean (target MDR) -- $\partial\text{limitedMean}/\partial d$ turns out simple enough and thus $d$ is cheap to solve on the fly using Newton's. \smallskip%\pause
+
+\tiny\item Implemented Bayesian fitting via MCMC. Even with substantial effort for code optimization, it is still painfully slow comparing with quasi-Newton, making analysis too expensive. An evolutionary algorithm was also tried. Results from both are no better and often much worse than quasi-Newton, partly due to difficulty in finding optimal hyperparameters. But the idea of sequential update is still invaluable to smoothing TrB parameter transition.\smallskip%\pause
+
+\tiny\item Fully dissected the L-BFGS-B algorithm. Customized and optimized a competitive open-source C++ library for our problem setting. Implemented a number of distance measures between PMFs such as cross-entropy ($\equiv$ negative log-likelihood for weighted samples, aka PMF), Kolmogorov with smooth maximum (for differentiability), Euclidean CDF, etc.  Tested multiple finite difference methods with numeric thresholds from publications for optimality.\smallskip
+ 
+\end{itemize}
+\end{enumerate}
+\end{textblock}
+\end{frame}
+
+%\tiny\item Painful discretization.   
+\begin{frame}{\normalsize Architecture. Goal: minimize human intervention in training.}
+\begin{textblock}{7.7}(-1.2,-5.3)
+\begin{enumerate}\setcounter{enumi}{6}
+\tiny\item Findings and thoughts:\smallskip
+
+\begin{itemize}
+\tiny\item TrB is powerful. Experiments show it seems able to approach any right-skewed unimodal data distribution (even with rigid shape) with a well fitted parametric form.\smallskip%\pause
+
+\tiny\item TrB is highly numerically ``pathological". Drastically different parameters might only make a small difference in the distribution's shape due to the nested exponentiations in the TrB parametric form. There are also symmetries to some extent among the parameters in certain regions. For example, in some cases two sets of quite different $a$ and $b$ in TrB can both well fit to the same data, because the tail (mainly controlled by $a$) and the general shape (mainly controlled by $b$) compensate each other. \smallskip%\pause
+
+\tiny\item Therefore, violent fluctuations in fitted TrB parameters along the MDR axis is mainly due to TrB's fitting power + numerical pathology, aka overfitting: the optimizer can push the parameters into a largely different area just to improve the goodness of fit by a little. This motivates the ensemble approach.\smallskip%\pause
+
+\tiny\item The previous methodology formulates the objective by scalarizing the distance objective and the limited mean (MDR) constraint. The reason why it worked poorly on maximum likelihood but worked well on kolmogorov distance is (i) log-likelihood and the difference in means are not homogeneous, which makes the scalarization hardly appropriate; (ii) maximum distance in CDF and the difference in means are more or less on the same scale. The new methodology solves $d$ precisely given MDR, $a$, $b$, $c$ on the fly, which enhances the goodness of fit to the data.%\pause
+\end{itemize}
+
+
+\end{enumerate}
+\end{textblock}
+
+\begin{textblock}{7.5}(7.2,-5.3)
+\begin{enumerate}\setcounter{enumi}{7}
+\tiny\item Bidirectional sequential fitting:\smallskip
+
+\begin{itemize}
+\tiny\item An extra recourse to smoothing TrB parameter transition along the MDR axis. Use optimized TrB parameters for the current MDR as initialization for the next MDR:\smallskip%\pause
+
+\tiny\item (i) Select the mean of the MDRs in data, e.g., 0.08. (ii) Fit the empirical cond PMF associated to 0.08. (iii) Use the optimized parameters as the initialization for fitting the PMF(0.08001), PMF(0.08002), ..., PMF(0.9999). (iv) Do the same for PMF(0.07999), PMF(0.07998), ..., PMF(0.00001).\smallskip
+
+\tiny\item Why bidirectional? --- to start with a cond empirical PMF estimated (not extrapolated) from data.\smallskip%\pause
+
+\tiny\item Smoother transition + substantial speedup (25x) thanks to locality of the optima --- need fewer iterations to converge to. Time cost: 3 seconds for fitting 18999 PMFs.\smallskip%\pause
+\end{itemize}
+
+\tiny\item Discretization.\smallskip
+
+\begin{itemize}
+\tiny\item Was a little too ambitious. Wanted to find a discretization method that will keep $P_0$ intact.\smallskip%\pause
+
+\tiny\item But for TrB with low MDR and heavy tail, a large probability mass can be concentrated within the first delta (step on PMF support). It seems impossible to redistribute this mass without using the first support point ($P_0$) while bringing negligible changes to other parts of the distribution. It should be feasible if support size can be larger, e.g., 1024. \smallskip%\pause
+
+\tiny\item Stick to the 2019 discretization methodology. Improved and integrated it into the pipeline.
+\end{itemize}
+
+
+\end{enumerate}
+\end{textblock}
+
+
+%\begin{frame}{}
+%\begin{textblock}{7.2}(-1.2,-5.3)
+%\end{frame}
+
+\end{frame}
+
+
+
+
+\begin{frame}{$P_0$ and means of empirical PMFs}
+\begin{textblock}{1}(1,-5)
+\includegraphics[scale=0.4]{../figure/P0-empirical-mean-MDR.pdf}
+\end{textblock}
+\begin{textblock}{12}(0,5)
+\begin{itemize}
+\scriptsize\item Gray zone shows the data range.
+\scriptsize\item $P_0$ is the mean of an ensemble of size 30.  
+\scriptsize\item Plot will be generated during pipeline execution to inform bias in the catastrophe model.
+\end{itemize}
+\end{textblock}
+
+\end{frame}
+
+
+\begin{frame}{Fitted parameters}
+
+\includegraphics[scale=0.36]{../figure/abcFromDifferenceOpt.png}
+
+\end{frame}
+
+\begin{frame}{Bayesian update using Tohoku PMFs}
+%\includegraphics[scale=0.59]{../figure/tohokuVSnz.pdf}
+\animategraphics[controls,scale=0.59,trim=0cm 0cm 0cm 0cm]{5}{../figure/tohokuVSnz}{}{}
+\end{frame}
+
+\begin{frame}{Bayesian update using Tohoku PMFs, microscope on the main part}
+%\includegraphics[scale=0.59]{../figure/tohokuVSnz.pdf}
+\animategraphics[controls,scale=0.59,trim=0cm 0cm 0cm 0cm]{5}{../figure/tohokuVSnz-mainPart}{}{}
+\end{frame}
+
+\begin{frame}{Bayesian update using Tohoku PMFs, microscope on the main part}
+
+Reasons for the persistent mismatch in the main parts for high weights and high MDRs:\medskip
+
+\begin{enumerate}
+\item The previous methodology extrapolates TrBs for high MDRs by increasing the scale parameter $d$ of the same TrB, but it also adjusts $P_{\max}$ separately for meeting QA requirements --- by scaling up $P_{\max}$ and scaling down the probabilities of the main part. Effectively, the final discretization is a combination of two separate models.\medskip
+
+\item The two separate models are hard to be fitted by a single TrB model. \medskip
+
+\item The overall difference is negligible due to the dominance of $P_{\max}$.
+
+\end{enumerate} 
+\end{frame}
+
+
+\begin{frame}{Future work}
+Test the pipeline on all available claims data to ensure its robustness.\medskip
+
+Stress test the pipeline with garbage data.\medskip
+
+\begin{enumerate}
+\item Populate random uniform claim damage ratios.\medskip
+
+\item Populate claim damage ratios that are far away from MDRs.\medskip
+
+\item Populate claim damage ratios that are highly negatively correlated with MDRs.\medskip
+
+\end{enumerate}
+ 
+
+Create an R package and document it like \texttt{keyALGs}. 
+\end{frame}
+
+
+\begin{frame}
+\Huge \centering Slides remade for brevity and clarity 20230713 (New Zealand earthquake)
+\end{frame}
+
+\begin{frame}{Main steps}
+
+Assuming no deductibles and no incorporation of old distributions:\medskip
+
+\begin{enumerate}
+\item Import data: MDRs, damage ratios.\medskip
+
+\item Model $P_0$.\medskip
+
+\item Compute 18999 empirical PMFs.\medskip
+
+\item Fit Transformed Beta (TrB) to the 18999 PMFs.\medskip
+
+\item Discretization.
+\end{enumerate}
+\end{frame}
+
+
+\begin{frame}{Data ordering}
+
+\begin{textblock}{1}(6.5,-3)
+\includegraphics[scale=0.66]{../figure/orderMatters.pdf}
+\end{textblock}
+
+
+\begin{textblock}{6.5}(-0.5,-5)
+
+\scriptsize Import data: (MDRs, claim damage ratios).\medskip
+
+\begin{enumerate}
+\item Order data (rows) by MDR and claim damage ratio (CDR).\medskip
+
+\item Reshuffle data using a user-defined random seed.\medskip
+
+\item Order data by MDR.\medskip
+\end{enumerate}
+
+If MDRs are not unique, different orders of rows can lead to different empirical distributions in bins.\medskip\pause
+
+Even if CDRs are not sorted upon import, they could still be semi-sorted depending on how the data records were organized in databases. For example, the records could have been grouped by geographic regions / events / years, etc. \medskip\pause
+
+The ``order + shuffle + order" procedure removes any potential bias and guarantees uniqueness of empirical distributions in bins, i.e. re-producibility. 
+
+\end{textblock}
+
+
+\end{frame}
+
+
+\begin{frame}{Sliding window and sliding speed}
+\begin{center}
+\includegraphics[scale=0.58]{../figure/slidingWindowExplain.pdf}
+\end{center}
+Overlapped windows $\implies$ correlated samples $\implies$ close empirical PMFs in shape and scale $\implies$ smoother transition of TrBs along the MDR axis.\medskip
+
+Sliding windows will also be used to model $P_0$.
+\end{frame}
+
+
+\begin{frame}{Model $P_0$}
+\begin{textblock}{1}(5,-4)
+\includegraphics[scale=0.39]{../figure/ws-1pct-speed-1pct-lds.pdf}
+\end{textblock}
+
+\begin{textblock}{5}(-0.5,-5)
+
+\small Set sliding window size and speed.\medskip
+
+\small Compute $P_0$ and mean of MDRs in each window.\medskip
+
+\small \textbf{Constraint}: $P_0$ is a decreasing function of MDR. 
+\begin{itemize}
+\small\item $P_0(\text{MDR}=0) = 1$ .
+
+\small\item $P_0(\text{MDR}=1) = 0$ .
+\end{itemize}\medskip
+
+\small Compute the longest decreasing subsequence.
+\begin{itemize}
+\small \item $O(N\log N)$ [\textcolor{blue}{\href{https://en.wikipedia.org/wiki/Longest_increasing_subsequence}{REF}}].
+\end{itemize}
+\end{textblock}
+
+\end{frame}
+
+
+\begin{frame}{Model $P_0$}
+\begin{textblock}{1}(5,-4)
+\includegraphics[scale=0.39]{../figure/ws-1pct-speed-1pct-lds-hyman.pdf}
+\end{textblock}
+
+\begin{textblock}{5}(-0.5,-5)
+
+\small Set sliding window size and speed.\medskip
+
+\small Compute $P_0$ and mean of MDRs in each window.\medskip
+
+\textbf{Constraint}: $P_0$ is a decreasing function of MDR. 
+\begin{itemize}
+\item $P_0(\text{MDR}=0) = 1$ .
+
+\item $P_0(\text{MDR}=1) = 0$ .
+\end{itemize}\medskip
+
+Compute the longest decreasing subsequence.
+\begin{itemize}
+\item $O(N\log N)$ [\textcolor{blue}{\href{https://en.wikipedia.org/wiki/Longest_increasing_subsequence}{REF}}].\medskip
+\end{itemize}
+
+Monotone cubic interpolation of the subsequence [\textcolor{blue}{\href{https://en.wikipedia.org/wiki/Monotone_cubic_interpolation}{REF}}].
+\end{textblock}
+
+\end{frame}
+
+
+\begin{frame}{Model $P_0$, robustification \small(not necessary but good to have and cheap to run)}
+\begin{textblock}{1}(5,-4)
+\includegraphics[scale=0.39]{../figure/p0modelsFigure.png}
+\end{textblock}
+
+
+\begin{textblock}{5}(-0.5,-5)
+
+\small Sample 100 random subsets of data. Subset size = e.g. 2/3 of the full data size.\medskip
+
+Compute the Hyman model in each subset.\medskip
+
+Ensemble mean is used as the final estimate.\medskip
+
+Note:
+\begin{itemize}
+\scriptsize\item To prevent overfitting, the main part i.e. $P(\text{DR} > 0)$ can also be modeled using ensemble. This would produce 100 sets of TrB parameters. The final PMF table would be a mixture of the discretizations of the 100 sets of TrBs. We ignore this approach for now.
+\end{itemize}
+\end{textblock}
+\end{frame}
+
+
+\begin{frame}{Model the main part $P(\text{DR} > 0)$ }
+
+\begin{textblock}{1}(5,-4)
+\includegraphics[scale=0.39]{../figure/conditionalPMFexample.pdf}
+\end{textblock}
+
+
+\begin{textblock}{5.5}(-0.75,-5)
+\small Remove data where DR = 0.\medskip
+
+Set sliding window and speed.\medskip
+
+Compute MDR mean and conditional empirical PMF in each window.\medskip
+
+\small\begin{itemize}
+\item $P_0$ (red) is given.\medskip
+
+\item Empirical PMF is computed using regriding.\medskip\pause
+
+\item For prescribed MDR that is not windowed, mix the neighboring PMFs (explained previously).\medskip
+
+\item For prescribed MDR that is out of data range, extrapolate.\medskip
+\end{itemize}
+\end{textblock}
+\end{frame}
+
+\begin{frame}{Extrapolation below minimum MDR in data}
+\begin{textblock}{1}(4.1,-5)
+\animategraphics[controls,scale=0.42,trim=0cm 0cm 0cm 0cm]{5}{../figure/downScaleExample}{}{}
+\end{textblock}
+
+
+\begin{textblock}{3}(-0.5,-4)
+Example assumes 0.005 the lowest MDR in data.\bigskip
+
+Downscale the support of PMF for MDR = 0.005 linear to the prescribed MDRs. 
+
+\end{textblock}
+\end{frame}
+
+
+\begin{frame}{Extrapolation above maximum MDR in data}
+\begin{textblock}{1}(4.1,-5)
+\animategraphics[controls,scale=0.42,trim=0cm 0cm 0cm 0cm]{5}{../figure/upScaleExample}{}{}
+\end{textblock}
+
+
+\begin{textblock}{4}(-0.5,-4)
+Example assumes 0.5 the highest MDR in data.\bigskip
+
+Upscale the support of PMF for MDR = 0.5 linear to the prescribed MDRs.\bigskip
+
+Upper bound the PMF's support by 1 and load the truncated tail on $P_{\max}$.
+
+\end{textblock}
+\end{frame}
+
+\begin{frame}{Fit TrB}
+\begin{tiny}
+Denote the incomplete beta function by $\beta(u,v;y)=\int_{0}^{y}t^{u-1}(1-t)^{v-1}dt$. For TrB random variable $X$,
+\begin{equation*}
+\begin{split}
+\mu_{\text{lm1}} &= \mathbb{E}[\min(X, 1)] \\
+&=\frac{ d \cdot  \Gamma\left(  \frac{b + 1}{c}  \right)\Gamma\left(   \frac{a-1}{c} \right)  }{\Gamma\left(    \frac{a}{c}  \right) \Gamma\left( \frac{b}{c} \right) }\cdot \beta \left( \frac{b+1}{c}  ,  \frac{a-1}{c} ;   \frac{1}{d^c+1}  \right)+1 - \beta \left( \frac{b}{c} , \frac{a}{c} ; \frac{1}{d^c+1} \right).
+\end{split}
+\end{equation*}\pause
+Interestingly,
+\begin{equation*}
+\begin{split}
+\frac{\partial \mu_{\text{lm1}}}{\partial d} = \frac{  \Gamma\left(  \frac{b + 1}{c}  \right)\Gamma\left(   \frac{a-1}{c} \right)  }{\Gamma\left(    \frac{a}{c}  \right) \Gamma\left( \frac{b}{c} \right) }\cdot \beta \left( \frac{b+1}{c}  ,  \frac{a-1}{c} ;   \frac{1}{d^c+1}  \right)>0,
+\end{split}
+\end{equation*}
+so $\mu_{\text{lm1}}$ is an increasing function of $d$ and the derivative can be obtained almost free of charge after computing $\mu_{\text{lm1}}$.\medskip\pause
+
+Because the target mean for $\min(X, 1)$ is also constrained by:
+\begin{equation*}
+\mu^*_{\text{lm1}} = \frac{\text{MDR}}{1 - P_0(\text{MDR})},
+\end{equation*}
+we can quickly solve $d$ given $a, b, c, \mu^*_{\text{lm1}}$ using Newton's method.\medskip\pause
+
+The mean constraint removes one degree of freedom. Fitting TrB is only 3-d optimization for $a, b, c$.
+\end{tiny}
+\end{frame}
+
+
+\begin{frame}{Fit TrB}
+\begin{textblock}{7}(-0.5,-5.2)
+\begin{tiny}
+\rule{7cm}{0.4pt}\smallskip
+		
+		\textbf{Algorithm I:} Negative log-likelihood $\mathcal{L}(a, b, c, d, x[], p[])$
+		\rule{7cm}{0.4pt}
+		
+		\textbf{INPUT:} TrB parameters $a, b, c, d$; Empirical PMF support $x[N]$ and probabilities $p[N]$; TrB PDF $f$ and CDF $F$.\smallskip
+		
+		\textbf{OUTPUT:} Negative log-likelihood.\smallskip
+		
+\begin{enumerate}
+\item $l\gets0$\smallskip
+
+\item \textbf{for} $i = 1$ to $N-1$:\smallskip
+
+\hspace{1em}$l \mathrel{{+}{=}} - p[i]\log f(a, b, c, d; x[i])$\smallskip
+
+\item 
+\textbf{if} $x[N] < 1$: $l \mathrel{{+}{=}} - p[i]\log f(a, b, c, d; x[i])$\smallskip
+
+\textbf{else}: $l \mathrel{{+}{=}} - p[i]\log(1 - F(a, b, c, d; 1))$\smallskip
+
+\item \textbf{return} $l$
+\end{enumerate}\smallskip  
+
+Negative log-likelihood of weighted data (PMF) against a continuous PDF is equivalent to cross entropy.\medskip\pause
+
+We unify gradient computation by using finite difference (FD):\medskip
+
+\begin{enumerate}
+\item The analytical form of $\partial\mathcal{L}/\partial(a, b, c)$ is not simple enough to bring meaningful speedup.\medskip
+
+\item Other distance measures have costlier analytical gradient forms.\medskip
+
+\item FD can be more numerically stable.
+\end{enumerate}
+
+%The analytical form of $\partial\mathcal{L}/\partial(a, b, c)$ is not simple enough to bring significant speedup over the finite difference (FD) approach. Since we also implemented other distance measures that have even more costly analytical gradients, FD is used for all choices of objective functions during optimization. 
+
+\end{tiny}
+\end{textblock}
+
+
+
+
+\begin{textblock}{7}(7.5,-5.2)
+
+\begin{tiny}
+
+\rule{7cm}{0.4pt}\smallskip
+		
+		\textbf{Algorithm II:} Objective function $\mathcal{O}$ and gradient $\nabla\mathcal{O}$
+		\rule{7cm}{0.4pt}
+		
+		\textbf{INPUT:} Empirical PMF's support $x[N]$, probabilities $p[N]$, target limited mean $\mu^*_{\text{lm1}}$; TrB parameters $a, b, c$; Newton's 1-d root finder $\mathcal{R}$; Distance function $\mathcal{L}$. \smallskip
+		
+		\textbf{OUTPUT:} Object function value and gradient with respective to $(a, b, c)$.\smallskip
+		
+\begin{enumerate}
+
+
+\item $d\gets \mathcal{R}\left(a, b, c, \mu^*_{\text{lm1}}\right) $\smallskip
+
+\item \textbf{return} $\mathcal{L}(a, b, c, d, x[N], p[N])$, $\left(\frac{\partial \mathcal{L}}{\partial a}, \frac{\partial \mathcal{L}}{\partial b}, \frac{\partial \mathcal{L}}{\partial c}\right)$
+
+\end{enumerate}
+
+Root finder $\mathcal{R}$ invokes bisection contingent on Newton's divergence.\medskip\pause
+
+
+
+\rule{7cm}{0.4pt}\smallskip
+		
+		\textbf{Algorithm III:} Solve $a, b, c, d$
+		\rule{7cm}{0.4pt}
+		
+		\textbf{INPUT:} Empirical PMF's support $x[N]$, probabilities $p[N]$, and target limited mean $\mu^*_{\text{lm1}}$; Quasi-Newton minimizer $\mathcal{Q}$, e.g., L-BFGS-B; all previously defined functions. \smallskip
+		
+		\textbf{OUTPUT:} $a, b, c, d$
+		
+\begin{enumerate}
+
+\item $a, b, c \gets \mathcal{Q}(\mathcal{O}, \nabla\mathcal{O})$\smallskip
+
+\item $d\gets \mathcal{R}\left(a, b, c, \mu^*_{\text{lm1}}\right) $\smallskip
+
+\item \textbf{return} $(a,b,c,d)$
+
+\end{enumerate}
+  
+\end{tiny}
+
+\end{textblock}
+
+\end{frame}
+
+
+
+\begin{frame}{Bidirectional sequential fitting}
+\begin{textblock}{1}(5.5,-3.5)
+\includegraphics[scale=0.413]{../figure/TrBtransitionParam.png}
+\end{textblock}
+
+
+\begin{textblock}{5.5}(-0.75,-5.2)
+
+\tiny Bidirectional sequential fitting:\medskip
+
+\begin{enumerate}
+\tiny\item Select an MDR from data, e.g. median(MDR) = 0.058.\medskip
+
+\tiny\item\label{step2} Fit TrB to the empirical PMF associated with the MDR.\medskip
+
+\tiny\item Go to the next (previous) MDR, use the current optimized parameters as initialization, and rerun Step \ref{step2}.\smallskip
+
+\end{enumerate}
+
+The motivation is to promote the locality of optima. The result $(a,b,c,d)$ are still not perfectly smooth functions of MDR, which is expected.\medskip\pause
+
+%There are a segment of about 300 MDRs around MDR=0.058,
+The drop and surge in the middle of $a$ and $c$ correspond to about 300 MDRs surrounding 0.058 --- the starting MDR. The behavior is still being investigated, but it is probably because cumulative change in the empirical PMF becomes large enough to push the optimizer towards a far-away local minimum --- even if this local minimum is minimally better. The diagnose is reasonable but still superficial since it does not explain why such behavior only occurs near the starting MDR: if we change the starting MDR to, e.g., 0.1, the drop and surge will appear around MDR=0.1.\medskip
+
+The drop and surge do not translate to similar behaviors in TrB density or in the objective function. 
+
+\end{textblock}
+
+\end{frame}
+
+
+
+
+%TrBtransitionParamMerged.pdf
+\begin{frame}{Bidirectional sequential fitting (update)}
+\begin{textblock}{1}(5.5,-3.5)
+\animategraphics[controls,scale=0.413,trim=0cm 0cm 0cm 0cm]{5}{../figure/TrBtransitionParamMerged}{}{}
+%\includegraphics[scale=0.413]{../figure/TrBtransitionParam.png}
+\end{textblock}
+
+
+\begin{textblock}{5.5}(-0.75,-5.2)
+
+\tiny It has been confirmed that the drop and surge are due to ``bad" initialization at the starting MDR.\medskip
+
+The objective function has almost no change at all given quite different parameters.\medskip
+
+This implies numerous local optima for the same goodness of fit, and suggests that the distribution model might be overparameterized. Three-parameter members in the TrB family, i.e. Burr, Generalized Pareto, Inverse Burr, could be worth a trial \textbf{in the distant future}. \bigskip
+
+\includegraphics[scale=0.22,trim=0cm 0cm 0cm 0cm]{../figure/trbFamily.png}
+
+\end{textblock}
+\end{frame}
+
+
+
+\begin{frame}{Bayesian update}
+
+Assuming no deductibles:\medskip
+
+\begin{enumerate}
+\item Import data: (MDRs, claim damage ratios).\medskip
+
+\begin{itemize}
+\item Also import the old PMF table, and set the update weight $w$.\medskip
+\end{itemize}
+
+\item Model $P_0$.\medskip
+
+\begin{itemize}
+\item $P_0\gets (1 - w) P_0 + w P_0^{\text{old}}$.\medskip
+\end{itemize}
+
+\item Compute 18999 conditional empirical PMFs.\medskip
+
+\begin{itemize}
+\item $P_{\text{DR}>0}\gets (1 - w) P_{\text{DR}>0} + w P_{\text{DR}>0}^{\text{old}}$.\medskip
+\end{itemize}
+
+
+\item Fit Transformed Beta (TrB) to the 18999 PMFs.\medskip
+
+\item Discretization.
+\end{enumerate}
+
+
+\end{frame}
+
+
+
+
+\begin{frame}{Given franchise deductible}
+
+%\begin{textblock}{5.5}(-0.75,-5.2)
+\centering
+\includegraphics[scale=0.47]{../figure/explainFranchiseDed.pdf}
+%\end{textblock}
+
+
+\end{frame}
+
+
+\begin{frame}{Given ordinary deductible}
+
+%\begin{textblock}{5.5}(-0.75,-5.2)
+\centering
+\includegraphics[scale=0.47]{../figure/explainOrdinaryDed.pdf}
+%\end{textblock}
+
+\end{frame}
+
+
+\begin{frame}{Raw discretization}
+%\begin{textblock}{7}(-0.75,-5)
+%
+%\end{textblock}
+
+\begin{enumerate}
+
+\item Set tentative quantile $q$ e.g. 0.999. Given an MDR, let $\max(\text{MDR})$ be the max of PMF's support, let $F^{-1}_{\text{MDR}}$ be the inverse TrB CDF:\medskip
+
+\begin{itemize}
+\item $\max(\text{MDR})\gets  \min\left(1, F^{-1}_{\text{MDR}}(q)\right)$.\medskip 
+
+\item If $\max(\text{MDR})$ is not a nondecreasing sequence (rarely happens), compute the longest nondecreasing subsequence and do Hyman interpolation.\medskip\pause
+
+\end{itemize}
+
+\item For each MDR,\medskip
+
+\tiny\begin{enumerate}
+\item Set a fine support of e.g. 2000 points, i.e. \{$\max$/2000, $2\cdot\max$/2000, $\ldots$, $\max$\}. Discretize TrB onto the support via central differencing TrB CDF.\medskip
+
+\begin{itemize}
+\item If $\max=1$: $P_{\max}\gets1-F(1-\max/4000)$.\medskip
+\end{itemize}
+
+
+\item Renormalize the fine discretization such that the sum of probabilities equals $1-P_0$. Prepend $(0, P_0)$ to the fine discretization.\medskip\pause
+
+\item Regrid the PMF onto the final 42/64-point support.\medskip\pause
+
+\item Scale up/down $P_0$ while scaling down/up all the main probabilities together to eliminate small error between MDR and PMF's mean.
+
+\end{enumerate}
+
+\end{enumerate}
+
+\end{frame}
+
+\begin{frame}{Raw discretization}
+\centering
+\includegraphics[scale=0.47]{../figure/rawDiscretization-p0p1maxCv-MDR.png}
+\end{frame}
+
+
+\begin{frame}{Tune discretization}
+
+\begin{textblock}{7.75}(-0.5,-5.15)
+\tiny Given a PMF table of size 19001 $\times$ ($N$ + 2), $N\in\{42, 64\}$:\smallskip
+
+\begin{enumerate}
+\tiny\item Impose monotonicity on $P_0$.\medskip
+
+\begin{enumerate}
+
+\tiny\item Compute the longest nonincreasing subsequence of $P_0$. Retrieve all the PMFs associated to the subsequence.\medskip
+
+\tiny\item \label{ss1} Let $\text{PMF}_i$ and $\text{PMF}_j$ be any two neighboring PMFs in the PMF sequence. Denote their MDRs by $\text{MDR}_i$ and $\text{MDR}_j$, $i<j$.\medskip
+
+\tiny\item If there should have been a prescribed MDR$^*$ between $\text{MDR}_i$ and $\text{MDR}_j$:
+\begin{equation*}
+\begin{split}
+\tiny w&\gets (\text{MDR}^* - \text{MDR}_i) / (\text{MDR}_j - \text{MDR}_i)\\
+\tiny \text{PMF}^*&\gets (1-w)\text{PMF}_i + w \text{PMF}_j
+\end{split}
+\end{equation*}
+\tiny\item Insert $\text{PMF}^*$ to the PMF table. If the table size has not reached 19001, return to Step 1.\ref{ss1}.\medskip
+
+\end{enumerate}
+
+\tiny\item Impose monotonicity on $P_{\max}$ in a similar way, which will not violate $P_0$'s monotonicity.\medskip
+
+\tiny\item By now, monotonicity in maxes might have been violated. Re-impose monotonicity in maxes:\medskip
+
+\begin{enumerate}
+\tiny\item Compute the longest nondecreasing subsequence of maxes. Retrieve all the PMFs associated with the subsequence.\medskip
+
+
+
+\end{enumerate}
+\end{enumerate}
+\end{textblock}
+
+
+\begin{textblock}{7}(7.5,-5.15)
+
+\begin{enumerate}\setcounter{enumi}{2}
+
+\tiny\item \hspace{1em}\medskip
+
+\begin{enumerate}\setcounter{enumii}{1}
+
+\tiny\item\label{st1} Let PMF$_i$ and PMF$_j$ be any two neighboring PMFs in the sequence. Let MDR$_i$, MDR$_j$, max$_i$, max$_j$, $\boldsymbol{x}_i$ and $\boldsymbol{x}_j$, $\boldsymbol{p}_i$, $\boldsymbol{p}_j$,  be their MDRs, maxes, supports and probability vectors respectively. Additionally, let $\boldsymbol{x}(\text{max}_k)$\medskip
+
+\tiny\item If there should have been a prescribed MDR$^*$ between MDR$_i$ and MDR$_j$, do:\begin{equation*}
+\begin{split}
+&{\max}^*\gets \left({\max}_i + {\max}_j\right) / 2\\
+&\boldsymbol{x}^*\gets\left(0,\frac{{\max}^*}{N-1}, \frac{2{\max}^*}{N-1},\ldots,{\max}^*\right)\\
+&m_i\gets \boldsymbol{x}^*\cdot \boldsymbol{p}_i\\
+&m_j\gets \boldsymbol{x}^*\cdot \boldsymbol{p}_j\\
+&w\gets (\text{MDR}^* - m_i) / (m_j - m_i)\\
+&\boldsymbol{p}^*\gets (1-w)\boldsymbol{p}_i + w\boldsymbol{p}_j
+\end{split}
+\end{equation*}\item Insert $\boldsymbol{p}^*$ into the PMF table. If the table size has not reached 19001, return to Step 3.\ref{st1}.
+
+\end{enumerate}
+
+\end{enumerate}
+
+\end{textblock}
+
+
+
+\end{frame}
+
+
+\begin{frame}{Tuned discretization}
+\centering
+\includegraphics[scale=0.47]{../figure/tunedDiscretization-p0p1maxCv-MDR.png}
+\end{frame}
+
+
+
+\begin{frame}{Sliding window sizes}
+\begin{textblock}{1}(7.4,-5)
+\includegraphics[scale=0.36]{../figure/mvAvgsDifferengWindowSizes-dots.png}
+\end{textblock}
+
+\begin{textblock}{7.3}(-0.5,-5)
+\tiny Larger windows $\implies$ smoother trends.\medskip
+
+\tiny Larger windows $\implies$ higher starting mean MDR, lower ending mean MDR.\medskip
+
+\tiny Window size too large $\implies$ oversmoothing.\medskip
+
+\tiny Window size too small $\implies$ less credible empirical PMFs in windows.\medskip\pause
+
+\tiny\begin{itemize}
+\item Empirical PMF has 64 points, thus window size $\ge200$ is recommended, aka $\sim$3 points on average for one probability bin.\medskip
+
+\item In principle, fitting distributions does not require inferring ``empirical PMF" from data first. However,\medskip\pause
+
+
+\tiny\begin{itemize}
+
+\tiny\item Doing so is necessary for Bayesian update because old distributions are characterized by PMFs.\medskip
+
+\tiny\item Empirical PMFs are needed for visualization of the goodness of fit.\medskip
+
+\tiny\item Fitting to the empirical PMFs is direct --- what you see is what you fit.\medskip
+
+\end{itemize}
+\end{itemize}\pause
+
+
+It is recommended to initialize different window sizes, run through the computing pipeline, compare and contrast the results before making decisions.\medskip
+
+\begin{itemize}
+\item Scoring the output distributions (explained in next slides) over claims data could be a useful criterion.
+\end{itemize}
+
+
+\end{textblock}
+
+\end{frame}
+
+\begin{frame}{Sliding window size 1784 vs. 200, $P_0$s}
+\begin{textblock}{7.5}(-0.5,-5)
+\centering Window size = 1784
+
+\includegraphics[scale=0.27,trim=0cm 0cm 0cm 0cm]{../figure/p0modelsFigure.png}
+\end{textblock}
+
+
+\begin{textblock}{7.5}(7.5,-5)
+\centering Window size = 200
+
+\includegraphics[scale=0.27,trim=0cm 0cm 0cm 0cm]{../figure/p0modelsFigure-windowSize-200.png}
+\end{textblock}
+
+
+\begin{textblock}{13}(0,5)
+Smaller windows lead to less smooth interpolations.\medskip
+
+Given smaller windows, ensemble appears more necessary.
+\end{textblock}
+\end{frame}
+
+
+
+
+\begin{frame}{Sliding window size 1784 vs. 200, fitted parameters}
+\begin{textblock}{7.5}(-0.75,-5)
+\centering Window size = 1784\medskip
+
+\includegraphics[scale=0.32,trim=0cm 0cm 0cm 0cm]{../figure/TrBtransitionParam.png}
+\end{textblock}
+
+
+\begin{textblock}{7.5}(7.25,-5)
+\centering Window size = 200\medskip
+
+\includegraphics[scale=0.32,trim=0cm 0cm 0cm 0cm]{../figure/TrBtransitionParam-windowSize-200.png}
+\end{textblock}
+
+
+\begin{textblock}{15}(0,5)
+Smaller windows lead to rougher transitions in TrB parameters along the MDR axis.\smallskip
+
+Different window sizes result in different parameters.\smallskip
+
+Objective function values however are similar given different window sizes.
+\end{textblock}
+\end{frame}
+
+
+\begin{frame}{Sliding window size 1784 vs. 200, raw discretization}
+\begin{textblock}{7.5}(-0.75,-5)
+\centering Window size = 1784\medskip
+
+\includegraphics[scale=0.3,trim=0cm 0cm 0cm 0cm]{../figure/rawDiscretization-p0p1maxCv-MDR.png}
+\end{textblock}
+
+
+\begin{textblock}{7.5}(7.25,-5)
+\centering Window size = 200\medskip
+
+\includegraphics[scale=0.3,trim=0cm 0cm 0cm 0cm]{../figure/rawDiscretization-p0p1maxCv-MDR-windowSize-200.png}
+\end{textblock} 
+
+
+\begin{textblock}{15}(0,6)
+Smaller windows lead to fuzzier $P_0$, $P_{\max}$, $\mu/\sigma$ functions of MDR. More corrections will be taken for imposing monotonicities.
+
+\end{textblock}
+\end{frame}
+
+
+
+\begin{frame}{Sliding window size 1784 vs. 200, tuned discretization}
+\begin{textblock}{7.5}(-0.75,-5)
+\centering Window size = 1784\medskip
+
+\includegraphics[scale=0.3,trim=0cm 0cm 0cm 0cm]{../figure/tunedDiscretization-p0p1maxCv-MDR.png}
+\end{textblock}
+
+
+\begin{textblock}{7.5}(7.25,-5)
+\centering Window size = 200\medskip
+
+\includegraphics[scale=0.3,trim=0cm 0cm 0cm 0cm]{../figure/tunedDiscretization-p0p1maxCv-MDR-windowSize-200.png}
+\end{textblock} 
+
+
+\begin{textblock}{14}(0,5)
+
+\scriptsize $P_0$s, $P_{\max}$s are still close given different window sizes.\medskip
+
+\scriptsize $\mu/\sigma$s are close in most of the MDR range, but largely different when MDR is small. PMF with small MDR is dominated by $P_0$. Small perturbance in $P_0$ amplifies the difference in $\sigma$ and thus $\mu/\sigma$.
+
+\end{textblock}
+\end{frame}
+
+
+
+\begin{frame}{Sliding window size 1784, fitted vs. empirical}
+\begin{textblock}{4.1}(-0.5,-5)
+\scriptsize Plots are associated with 45 MDRs $\in$\{ 1e-5, 2e-5, $\ldots$, 1e-4, 2e-4, $\ldots$, 1e-3, 2e-3, $\ldots$, 1e-2, 2e-2, $\ldots$, 1e-1, 2e-1, $\ldots$, 9e-1 \}\medskip\pause
+
+\scriptsize ``Bias corrected empirical" refers to empirical PMF with support scaled to match mean and MDR.\medskip
+
+\scriptsize Bias corrected empirical \textbf{is not} used for training TrBs.\medskip\pause
+
+\scriptsize Some empirical's mean differs from MDR by orders of magnitude.\medskip\pause
+
+\scriptsize The final discretized TrB often well fits the bias corrected empirical. This suggests $d$ is the dominant parameter for fitting empirical PMF with mean highly different from MDR.  
+
+\end{textblock}
+
+\begin{textblock}{1}(4.25,-5)
+\animategraphics[controls,scale=0.425,trim=0cm 0cm 0cm 0cm]{5}{../figure/pmfTable-45}{}{}
+\end{textblock}
+\end{frame}
+
+
+
+\begin{frame}{Sliding window size 200, fitted vs. empirical}
+\begin{textblock}{4.1}(-0.5,-5)
+\scriptsize Plots are associated with 45 MDRs $\in$\{ 1e-5, 2e-5, $\ldots$, 1e-4, 2e-4, $\ldots$, 1e-3, 2e-3, $\ldots$, 1e-2, 2e-2, $\ldots$, 1e-1, 2e-1, $\ldots$, 9e-1 \}\medskip
+
+\scriptsize ``Bias corrected empirical" refers to empirical PMF with support scaled to match mean and MDR.\medskip
+
+\scriptsize Bias corrected empirical \textbf{is not} used for training TrBs.\medskip
+
+\scriptsize Comparing to window size 1784,\medskip
+
+\begin{itemize}
+ 
+\item\scriptsize Shape of empirical PMF is much jaggier due to smaller sample size. Bias between mean and MDR are often larger.
+\medskip
+
+\item\scriptsize The final discretized TrB less often well fits the bias corrected empirical. 
+
+\end{itemize}
+
+
+\end{textblock}
+
+\begin{textblock}{1}(4.25,-5)
+\animategraphics[controls,scale=0.425,trim=0cm 0cm 0cm 0cm]{5}{../figure/pmfTable-45-windowSize-200}{}{}
+\end{textblock}
+\end{frame}
+
+
+\begin{frame}{Brier score}
+\begin{textblock}{1}(0,-5)
+\includegraphics[scale=0.95]{../figure/BrierScore.png}
+\end{textblock}
+
+
+\begin{textblock}{14}(0,-1.5)
+Have not deciphered why Wikipedia made the above comment.\medskip
+
+Without extrapolation, there could be bias towards realizations out of support:\medskip
+
+\includegraphics[scale=0.25]{../figure/noExtrapolationBiasInScore.pdf}
+
+\end{textblock}
+
+
+\begin{textblock}{5}(8,2)
+$f_1$ and $f_2$ have the same score 0. Fair to say $f_2$ and $f_1$ are equally good forecasts? \medskip
+
+$f_1$ has (much) higher chance of being better.
+\end{textblock}
+
+
+\end{frame}
+
+
+\begin{frame}{Negative log-likelihood and ignorance score}
+
+\begin{textblock}{1}(5.5,-5)
+\includegraphics[scale=0.53]{../figure/distTableImage.png}
+\end{textblock}
+
+
+\begin{textblock}{5.5}(-0.5,-5)
+\scriptsize Using claims data, scoring a PMF table $\equiv$ Scoring a 2D joint PMF.
+\end{textblock}
+\pause
+
+\begin{textblock}{5.5}(-0.5,-3)
+\scriptsize Claims' MDRs are round to the nearest 1e-5 if $<$ 0.1, and to 1e-4 otherwise.
+\end{textblock}
+
+
+\begin{textblock}{1}(5.5,-5)
+\includegraphics[scale=0.53]{../figure/distTableImageWithClaims.png}
+\end{textblock}
+\pause
+
+
+\begin{textblock}{5.5}(-0.5,-0.25)
+
+\scriptsize Negative log-likelihood $\mathcal{L} = -\sum_{i=1}^{N}\ln f(\text{claim}_i) + N\ln18999$. \medskip\medskip\medskip\medskip
+
+\scriptsize Ignorance score $\mathcal{I}g = -\sum_{i=1}^{N}\log_2 f(\text{claim}_i) + N\log_2 18999 $.\medskip\medskip\medskip\medskip
+
+\scriptsize $N\ln18999$ and $N\log_2 18999$ account for probability normalization.
+
+\end{textblock}
+\end{frame}
+
+
+\begin{frame}{Density estimate of one realization given arbitrary PMF}
+
+\begin{textblock}{1}(-0.5,-5)
+\includegraphics[scale=0.46]{../figure/pointWithinPmfScore.pdf}
+\end{textblock}
+
+
+\begin{textblock}{5}(9,-2)
+\begin{equation*}
+\begin{split}
+f(u) &= \frac{(1-w)\cdot p(x_i) + w\cdot p(x_{i+1})}{\Delta x}\\
+w &= (u - x_i) / (x_{i+1} - x_i)
+\end{split}
+\end{equation*}
+\end{textblock}
+
+\begin{textblock}{1}(5.5,5)
+\small$u$
+\end{textblock}
+
+\begin{textblock}{1}(9.5,5)
+\small$v$
+\end{textblock}
+
+
+\end{frame}
+
+
+
+\begin{frame}{Density estimate of one realization given arbitrary PMF}
+
+\begin{textblock}{1}(-0.5,-5)
+\includegraphics[scale=0.46]{../figure/pointOutOfPmfScore.pdf}
+\end{textblock}
+
+
+\begin{textblock}{1}(5.5,5)
+\small$u$
+\end{textblock}
+
+\begin{textblock}{1}(9.5,5)
+\small$v$
+\end{textblock}
+
+
+\begin{textblock}{6.25}(8.5,-5)
+\tiny Exponentially decay the tail:\smallskip
+
+\begin{enumerate}
+\tiny\item Assume $\left(x_{\max},p_{\max}\right)$ is a point on the survival curve of an exponential distribution.\smallskip
+
+\tiny\item Solve the exponential distribution's parameter and compute the density at $v$: \begin{equation*}
+f(v)=-\frac{\ln p_{\max}}{x_{\max}}\exp\left\{ \frac{\ln p_{\max}}{x_{\max}}\cdot v \right\}
+\end{equation*} 
+\end{enumerate}
+\tiny Opinions:\smallskip
+
+\begin{enumerate}
+\tiny\item Density estimation should be simple and only based on some rules of thumb. More sophistication means more uncertainty in the fidelity of the estimate considering the PMF can have arbitrary shape.   
+\smallskip
+
+\tiny\item $\left(x_{\max},p_{\max}\right)$ should be the dominant parameter for estimating $f(v)$. This follows the principle of nearest neighbor interpolation used for computing $f(u)$.\medskip
+
+\end{enumerate}
+
+
+%\begin{equation*}
+%\begin{split}
+%f(u) &= \frac{(1-w)\cdot p(x_i) + w\cdotp(x_{i+1})}{\Delta x}\\
+%w &= (u - x_i) / (x_{i+1} - x_i)
+%\end{split}
+%\end{equation*}
+\end{textblock}
+
+
+\end{frame}
+
+
+
+
+
+
+
+%\begin{frame}{Ignorance score}
+%\centering
+%\includegraphics[scale=1]{../figure/igscoreTmp.pdf}
+%\end{frame}
+
+
+
+
+
+
+\end{document}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,16 @@
+buildit.R
+.Rhistory
+reviewedFuns.txt
+finalTests
+tempFiles
+vignettes/_minted-workflow
+vignettes/texput.log
+vignettes/workflow.aux
+vignettes/workflow.log
+vignettes/workflow.out
+vignettes/workflow.toc
+vignettes/workflow-backup.tex
+sourceAllPackgeCodes.R
+
+
+

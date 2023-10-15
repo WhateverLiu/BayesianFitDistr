@@ -1,0 +1,15 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{tb}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n+nf}{as.data.frame}\PYG{p}{(}\PYG{n}{pmftable}\PYG{o}{\PYGZdl{}}\PYG{n}{tuned}\PYG{o}{\PYGZdl{}}\PYG{n}{p42}\PYG{p}{)}
+\PYG{n+nf}{colnames}\PYG{p}{(}\PYG{n}{tb}\PYG{p}{)}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n+nf}{c}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}MDR\PYGZdq{}}\PYG{p}{,}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}max\PYGZdq{}}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nf}{paste0}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}P\PYGZdq{}}\PYG{p}{,}\PYG{+w}{ }\PYG{l+m}{1}\PYG{o}{:}\PYG{p}{(}\PYG{n+nf}{ncol}\PYG{p}{(}\PYG{n}{tb}\PYG{p}{)}\PYG{+w}{ }\PYG{o}{\PYGZhy{}}\PYG{+w}{ }\PYG{l+m}{2L}\PYG{p}{)))}
+\PYG{n}{data.table}\PYG{o}{::}\PYG{n+nf}{fwrite}\PYG{p}{(}\PYG{n}{tb}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{row.names}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{k+kc}{TRUE}\PYG{p}{,}
+\PYG{+w}{                 }\PYG{n}{file}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}../tempFiles/examplePMF42.csv\PYGZdq{}}\PYG{p}{)}
+
+\PYG{n}{tb}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n+nf}{as.data.frame}\PYG{p}{(}\PYG{n}{pmftable}\PYG{o}{\PYGZdl{}}\PYG{n}{tuned}\PYG{o}{\PYGZdl{}}\PYG{n}{p64}\PYG{p}{)}
+\PYG{n+nf}{colnames}\PYG{p}{(}\PYG{n}{tb}\PYG{p}{)}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n+nf}{c}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}MDR\PYGZdq{}}\PYG{p}{,}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}max\PYGZdq{}}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nf}{paste0}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}P\PYGZdq{}}\PYG{p}{,}\PYG{+w}{ }\PYG{l+m}{1}\PYG{o}{:}\PYG{p}{(}\PYG{n+nf}{ncol}\PYG{p}{(}\PYG{n}{tb}\PYG{p}{)}\PYG{+w}{ }\PYG{o}{\PYGZhy{}}\PYG{+w}{ }\PYG{l+m}{2L}\PYG{p}{)))}
+\PYG{n}{data.table}\PYG{o}{::}\PYG{n+nf}{fwrite}\PYG{p}{(}\PYG{n}{tb}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{row.names}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{k+kc}{TRUE}\PYG{p}{,}
+\PYG{+w}{                 }\PYG{n}{file}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}../tempFiles/examplePMF64.csv\PYGZdq{}}\PYG{p}{)}
+
+\PYG{n}{tb}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n+nf}{as.data.frame}\PYG{p}{(}\PYG{n+nf}{t}\PYG{p}{(}\PYG{n}{TrBtable}\PYG{p}{))}
+\PYG{n+nf}{colnames}\PYG{p}{(}\PYG{n}{tb}\PYG{p}{)}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n+nf}{c}\PYG{p}{(}\PYG{l+s}{\PYGZdq{}MDR\PYGZdq{}}\PYG{p}{,}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}max\PYGZdq{}}\PYG{p}{,}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}P0\PYGZdq{}}\PYG{p}{,}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}a\PYGZdq{}}\PYG{p}{,}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}b\PYGZdq{}}\PYG{p}{,}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}c\PYGZdq{}}\PYG{p}{,}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}d\PYGZdq{}}\PYG{p}{)}
+\PYG{n}{data.table}\PYG{o}{::}\PYG{n+nf}{fwrite}\PYG{p}{(}\PYG{n}{tb}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{file}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}../tempFiles/exampleTrBtable.csv\PYGZdq{}}\PYG{p}{)}
+\end{Verbatim}

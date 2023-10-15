@@ -1,0 +1,5 @@
+set.seed(123)
+x = runif(300)
+y = NGFMfitDistr::longestNonDecreasingSubseq(x)
+plot(x, col = "blue")
+lines(y, col = "red")

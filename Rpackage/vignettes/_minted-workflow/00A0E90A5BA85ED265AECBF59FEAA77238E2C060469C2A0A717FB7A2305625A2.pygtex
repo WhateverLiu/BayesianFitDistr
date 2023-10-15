@@ -1,0 +1,5 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{maxes}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n}{NGFMfitDistr}\PYG{o}{::}\PYG{n+nf}{makeMax}\PYG{p}{(}
+\PYG{+w}{  }\PYG{n}{MDR}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n}{targetMDRs}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{P0}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n}{optRst}\PYG{o}{\PYGZdl{}}\PYG{n}{P0}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{abcd}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n}{abcd}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{tailThreshold}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+m}{1}\PYG{+w}{ }\PYG{o}{\PYGZhy{}}\PYG{+w}{ }\PYG{l+m}{0.99}\PYG{p}{,}
+\PYG{+w}{  }\PYG{n}{minMax}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+m}{0.05}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{interpolationMethod}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}linear\PYGZdq{}}\PYG{p}{)}
+\end{Verbatim}

@@ -1,0 +1,50 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{targetMDRs}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n+nf}{c}\PYG{p}{(}\PYG{l+m}{1}\PYG{o}{:}\PYG{l+m}{10000}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nf}{seq}\PYG{p}{(}\PYG{l+m}{1e4L}\PYG{+w}{ }\PYG{o}{+}\PYG{+w}{ }\PYG{l+m}{10L}\PYG{p}{,}\PYG{+w}{ }\PYG{l+m}{1e5L}\PYG{+w}{ }\PYG{o}{\PYGZhy{}}\PYG{+w}{ }\PYG{l+m}{10L}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{by}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+m}{10L}\PYG{p}{))}\PYG{+w}{ }\PYG{o}{/}\PYG{+w}{ }\PYG{l+m}{1e5}
+
+\PYG{n}{optRst}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n+nf}{fullFit}\PYG{p}{(}
+\PYG{+w}{	}\PYG{n}{mdr}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n}{dat}\PYG{o}{\PYGZdl{}}\PYG{n}{MDR}\PYG{p}{,}
+\PYG{+w}{	}\PYG{n}{cdr}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n}{dat}\PYG{o}{\PYGZdl{}}\PYG{n}{CDR}\PYG{p}{,}
+\PYG{+w}{	}\PYG{n}{windowSize}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n+nf}{as.integer}\PYG{p}{(}\PYG{n+nf}{round}\PYG{p}{(}\PYG{n+nf}{nrow}\PYG{p}{(}\PYG{n}{dat}\PYG{p}{)}\PYG{+w}{ }\PYG{o}{*}\PYG{+w}{ }\PYG{l+m}{0.01}\PYG{p}{)),}
+\PYG{+w}{	}\PYG{n}{slidingSpeed}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n+nf}{as.integer}\PYG{p}{(}\PYG{n+nf}{round}\PYG{p}{(}\PYG{n+nf}{nrow}\PYG{p}{(}\PYG{n}{dat}\PYG{p}{)}\PYG{+w}{ }\PYG{o}{*}\PYG{+w}{ }\PYG{l+m}{1e\PYGZhy{}4}\PYG{p}{)),}
+\PYG{+w}{	}\PYG{n}{sampleSize}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n+nf}{round}\PYG{p}{(}\PYG{n+nf}{nrow}\PYG{p}{(}\PYG{n}{dat}\PYG{p}{)}\PYG{+w}{ }\PYG{o}{*}\PYG{+w}{ }\PYG{p}{(}\PYG{l+m}{1}\PYG{+w}{ }\PYG{o}{\PYGZhy{}}\PYG{+w}{ }\PYG{l+m}{1}\PYG{+w}{ }\PYG{o}{/}\PYG{+w}{ }\PYG{n+nf}{exp}\PYG{p}{(}\PYG{l+m}{1}\PYG{p}{))),}
+\PYG{+w}{	}\PYG{n}{NsampleSets}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+m}{100L}\PYG{p}{,}
+\PYG{+w}{	}\PYG{n}{interpolationMethod}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}linear\PYGZdq{}}\PYG{p}{,}
+\PYG{+w}{	}\PYG{n}{targetMDRs}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n}{targetMDRs}\PYG{p}{,}
+\PYG{+w}{	}\PYG{n}{randomSeed}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+m}{42L}\PYG{p}{,}
+\PYG{+w}{	}\PYG{n}{maxCore}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n}{parallel}\PYG{o}{::}\PYG{n+nf}{detectCores}\PYG{p}{(),}
+\PYG{+w}{	}\PYG{n}{deductible}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{k+kc}{NULL}\PYG{p}{,}
+\PYG{+w}{	}\PYG{n}{isDedFranchise}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{k+kc}{TRUE}\PYG{p}{,}
+\PYG{+w}{	}\PYG{n}{givenP0}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{k+kc}{NULL}\PYG{p}{,}
+\PYG{+w}{	}\PYG{n}{nonDegenerateOldDistrs}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{k+kc}{NULL}\PYG{p}{,}
+\PYG{+w}{	}\PYG{n}{sampleWeightOnOldDistrs}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+m}{0.8}\PYG{p}{,}
+\PYG{+w}{	}\PYG{n}{empDistrSupportSize}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+m}{64L}\PYG{p}{,}
+\PYG{+w}{	}\PYG{n}{regridMethod}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}lr\PYGZdq{}}\PYG{p}{,}
+\PYG{+w}{	}\PYG{n}{tempDir}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}../tempFiles/CharlieMP/C\PYGZdq{}}\PYG{p}{,}
+\PYG{+w}{	}\PYG{n}{figureDir}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}../tmpfigure\PYGZdq{}}\PYG{p}{,}
+\PYG{+w}{	}\PYG{n}{fitToBiasCorrectedPMFs}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{k+kc}{FALSE}\PYG{p}{,}
+\PYG{+w}{	}\PYG{n}{abc}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n+nf}{matrix}\PYG{p}{(}\PYG{n+nf}{c}\PYG{p}{(}\PYG{l+m}{4}\PYG{p}{,}\PYG{+w}{ }\PYG{l+m}{1}\PYG{p}{,}\PYG{+w}{ }\PYG{l+m}{2}\PYG{p}{)),}
+\PYG{+w}{	}\PYG{n}{abcLB}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n+nf}{c}\PYG{p}{(}\PYG{l+m}{1.01}\PYG{p}{,}\PYG{+w}{ }\PYG{l+m}{0.1}\PYG{p}{,}\PYG{+w}{ }\PYG{l+m}{0.1}\PYG{p}{),}
+\PYG{+w}{	}\PYG{n}{abcUB}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n+nf}{c}\PYG{p}{(}\PYG{l+m}{30}\PYG{p}{,}\PYG{+w}{ }\PYG{l+m}{30}\PYG{p}{,}\PYG{+w}{ }\PYG{l+m}{30}\PYG{p}{),}
+\PYG{+w}{	}\PYG{n}{startingPmf}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+m}{0L}\PYG{p}{,}
+\PYG{+w}{	}\PYG{n}{scaleEps}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+m}{1e\PYGZhy{}8}\PYG{p}{,}
+\PYG{+w}{	}\PYG{n}{scaleMaxit}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+m}{100L}\PYG{p}{,}
+\PYG{+w}{	}\PYG{n}{distanceFun}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}likelihood\PYGZdq{}}\PYG{p}{,}
+\PYG{+w}{	}\PYG{n}{max\PYGZus{}iterations}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+m}{100L}\PYG{p}{,}
+\PYG{+w}{	}\PYG{n}{RIBlib}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}Numerical Recipes\PYGZdq{}}\PYG{p}{,}
+\PYG{+w}{	}\PYG{n}{sequentialUpdate}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+m}{\PYGZhy{}1}\PYG{p}{,}
+\PYG{+w}{	}\PYG{n}{hgrad}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+m}{0}\PYG{p}{,}
+\PYG{+w}{	}\PYG{n}{centralDiff}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{k+kc}{TRUE}\PYG{p}{,}
+\PYG{+w}{	}\PYG{n}{verbose}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{k+kc}{TRUE}\PYG{p}{,}
+\PYG{+w}{	}\PYG{n}{m}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+m}{6}\PYG{p}{,}
+\PYG{+w}{	}\PYG{n}{epsilon}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+m}{1e\PYGZhy{}5}\PYG{p}{,}
+\PYG{+w}{	}\PYG{n}{epsilon\PYGZus{}rel}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+m}{1e\PYGZhy{}5}\PYG{p}{,}
+\PYG{+w}{	}\PYG{n}{past}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+m}{1}\PYG{p}{,}
+\PYG{+w}{	}\PYG{n}{delta}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+m}{1e\PYGZhy{}10}\PYG{p}{,}
+\PYG{+w}{	}\PYG{n}{max\PYGZus{}submin}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+m}{10}\PYG{p}{,}
+\PYG{+w}{	}\PYG{n}{max\PYGZus{}linesearch}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+m}{20}\PYG{p}{,}
+\PYG{+w}{	}\PYG{n}{min\PYGZus{}step}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+m}{1e\PYGZhy{}20}\PYG{p}{,}
+\PYG{+w}{	}\PYG{n}{max\PYGZus{}step}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+m}{1e+20}\PYG{p}{,}
+\PYG{+w}{	}\PYG{n}{ftol}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+m}{1e\PYGZhy{}4}\PYG{p}{,}
+\PYG{+w}{	}\PYG{n}{wolfe}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+m}{0.9}
+\PYG{+w}{	}\PYG{p}{)}
+\end{Verbatim}
