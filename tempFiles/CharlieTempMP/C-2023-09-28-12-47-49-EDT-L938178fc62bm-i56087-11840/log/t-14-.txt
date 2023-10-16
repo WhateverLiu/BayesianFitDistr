@@ -1,4 +1,0 @@
-N(items) = 6 : 1 2 3 4 5 6 Warning message:
-In modelP0(mdr = dat$MDR, cdr = dat$CDR, windows = windows, targetMDRs = targetMDRs,  :
-  P0s are too high: P0 >= 1 - targetMDR. Only Bernoulli distributions could be fitted to the data. Remove some zero claims to make Transformed Beta modeling feasible. Note that this warning is generated only for one ensemble member. The ensemble average can still be valid.
-[1] TRUE
