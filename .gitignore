@@ -24,3 +24,6 @@ slidesTmp
 references
 */?*archive
 */?*_minted-workflow
+*/?*.csv
+*/?*.tar.gz
+*/?*.tar
